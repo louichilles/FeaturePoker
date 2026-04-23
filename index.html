@@ -1,476 +1,673 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Feature Poker – Schneider Electric</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ─────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────── */
     :root {
-      --se-green:   #3DCD58;
-      --se-green-d: #29A83C;
-      --se-green-l: #E8FAE9;
-      --se-dark:    #1A1A1A;
-      --se-grey:    #F5F5F5;
-      --se-mid:     #6B6B6B;
-      --se-border:  #E0E0E0;
-      --se-white:   #FFFFFF;
+      --green:      #3DCD58;
+      --green-d:    #29A83C;
+      --green-l:    #EAF9EC;
+      --dark:       #1A1A1A;
+      --panel-bg:   #212121;
+      --panel-w:    248px;
+      --topbar-h:   56px;
+      --credit-h:   68px;
+      --white:      #FFFFFF;
+      --grey-bg:    #F4F5F7;
+      --grey-mid:   #6B6B6B;
+      --grey-line:  #E2E4E9;
       --danger:     #E53935;
-      --bar-h:      64px;
-      --credit-bar: 72px;
-      --radius:     8px;
-      --shadow:     0 2px 12px rgba(0,0,0,.10);
-      --shadow-lg:  0 8px 32px rgba(0,0,0,.16);
+      --radius-sm:  6px;
+      --radius-md:  10px;
+      --radius-lg:  14px;
+      --shadow-s:   0 1px 6px rgba(0,0,0,.08);
+      --shadow-m:   0 4px 18px rgba(0,0,0,.11);
+      --shadow-l:   0 10px 40px rgba(0,0,0,.16);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Nunito Sans', sans-serif;
-      background: var(--se-grey);
-      color: var(--se-dark);
+      background: var(--grey-bg);
+      color: var(--dark);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ── TOP NAV ── */
+    /* ─────────────────────────────────────────
+       TOP BAR
+    ───────────────────────────────────────── */
     #topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: var(--bar-h);
-      background: var(--se-dark);
-      display: flex; align-items: center;
-      box-shadow: var(--shadow);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--topbar-h);
+      background: var(--dark);
+      display: flex; align-items: center; gap: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
     }
-    .logo-area {
+    .tb-brand {
+      width: var(--panel-w); flex-shrink: 0;
       display: flex; align-items: center; gap: 10px;
-      padding: 0 20px; flex-shrink: 0;
+      padding: 0 18px; height: 100%;
       border-right: 1px solid #333;
-      height: 100%;
     }
-    .logo-area svg { width: 30px; height: 30px; }
-    .logo-area .brand {
+    .tb-brand .se-mark {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .tb-brand .se-mark svg { width: 18px; height: 18px; }
+    .tb-brand .wordmark {
+      display: flex; flex-direction: column; line-height: 1.15;
+    }
+    .tb-brand .wordmark .co {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 17px; font-weight: 700;
-      color: var(--se-white); white-space: nowrap;
-    }
-    .logo-area .sep { width: 1px; height: 18px; background: #555; margin: 0 4px; }
-    .logo-area .appname { color: var(--se-green); font-size: 15px; }
-
-    #feature-nav {
-      display: flex; align-items: center;
-      overflow-x: auto; flex: 1; height: 100%;
-      scrollbar-width: none;
-    }
-    #feature-nav::-webkit-scrollbar { display: none; }
-
-    .nav-tab {
-      flex-shrink: 0; height: 100%;
-      padding: 0 16px;
-      display: flex; align-items: center; gap: 8px;
       font-size: 13px; font-weight: 600;
-      color: #AAA; cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: color .2s, border-color .2s, background .2s;
-      white-space: nowrap;
+      color: #ccc; letter-spacing: .3px;
     }
-    .nav-tab:hover { color: #fff; background: #2a2a2a; }
-    .nav-tab.active { color: var(--se-green); border-bottom-color: var(--se-green); }
-    .nav-tab .badge {
-      background: var(--se-green); color: #fff;
-      font-size: 10px; font-weight: 800;
-      border-radius: 10px; padding: 1px 7px;
+    .tb-brand .wordmark .app {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px; font-weight: 700;
+      color: var(--green); letter-spacing: .3px;
     }
-    .nav-tab .badge.empty { background: #444; color: #777; }
-
+    .tb-right {
+      flex: 1; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px;
+    }
+    .tb-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px; font-weight: 600; color: #888;
+      letter-spacing: .3px;
+    }
+    .tb-title span { color: #fff; }
     #user-chip {
-      display: none; flex-shrink: 0;
-      align-items: center; gap: 8px;
-      padding: 0 16px; height: 100%;
-      border-left: 1px solid #333;
+      display: none; align-items: center; gap: 9px;
     }
     #user-chip .avatar {
       width: 30px; height: 30px; border-radius: 50%;
-      background: var(--se-green);
+      background: var(--green);
       display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 12px; color: #fff;
+      font-size: 11px; font-weight: 800; color: #fff;
     }
-    #user-chip .uname { font-size: 13px; color: #ccc; max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #user-chip .uname { font-size: 13px; color: #ccc; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* ── MAIN ── */
-    #main {
-      padding-top: calc(var(--bar-h) + 24px);
-      padding-bottom: calc(var(--credit-bar) + 24px);
+    /* ─────────────────────────────────────────
+       APP SHELL (side panel + content)
+    ───────────────────────────────────────── */
+    #shell {
+      display: flex;
+      padding-top: var(--topbar-h);
+      min-height: 100vh;
     }
 
+    /* ─────────────────────────────────────────
+       LEFT PANEL
+    ───────────────────────────────────────── */
+    #side-panel {
+      position: fixed;
+      top: var(--topbar-h); bottom: 0; left: 0;
+      width: var(--panel-w);
+      background: var(--panel-bg);
+      display: flex; flex-direction: column;
+      z-index: 100;
+      overflow: hidden;
+    }
+    /* panel only visible after login */
+    #side-panel.hidden { display: none; }
+
+    .panel-section-label {
+      padding: 18px 16px 8px;
+      font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.2px;
+      color: #555;
+    }
+
+    #nav-list {
+      flex: 1; overflow-y: auto;
+      padding: 0 8px 12px;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+    }
+    #nav-list::-webkit-scrollbar { width: 4px; }
+    #nav-list::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: #2c2c2c; }
+    .nav-item.active { background: #1e3a23; }
+
+    .nav-item .nav-index {
+      flex-shrink: 0;
+      width: 20px; height: 20px; border-radius: 4px;
+      background: #333;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: #777;
+      transition: background .15s, color .15s;
+    }
+    .nav-item.active .nav-index { background: var(--green); color: #fff; }
+
+    .nav-item .nav-label {
+      flex: 1; min-width: 0;
+      font-size: 13px; font-weight: 600; color: #888;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: color .15s;
+      line-height: 1.3;
+    }
+    .nav-item.active .nav-label { color: #fff; }
+    .nav-item:hover .nav-label { color: #ccc; }
+
+    .nav-item .nav-badge {
+      flex-shrink: 0;
+      font-size: 10px; font-weight: 800;
+      background: var(--green); color: #fff;
+      border-radius: 8px; padding: 1px 6px;
+      min-width: 28px; text-align: center;
+    }
+    .nav-item .nav-badge.empty { background: #333; color: #555; }
+
+    /* panel bottom: submit */
+    .panel-submit {
+      padding: 12px 10px;
+      border-top: 1px solid #2c2c2c;
+    }
+    .panel-submit button {
+      width: 100%; padding: 11px;
+      background: var(--green); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .panel-submit button:hover { background: var(--green-d); }
+    .panel-submit button:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    /* ─────────────────────────────────────────
+       MAIN CONTENT AREA
+    ───────────────────────────────────────── */
+    #content {
+      margin-left: var(--panel-w);
+      flex: 1;
+      padding: 28px 32px calc(var(--credit-h) + 28px);
+      min-width: 0;
+    }
+    #content.no-panel { margin-left: 0; }
+
+    /* ─────────────────────────────────────────
+       SCREENS
+    ───────────────────────────────────────── */
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* ── LOGIN ── */
+    /* ─────────────────────────────────────────
+       LOGIN SCREEN
+    ───────────────────────────────────────── */
     #screen-login {
-      min-height: 100vh;
+      min-height: calc(100vh - var(--topbar-h));
       align-items: center; justify-content: center;
-      padding-top: var(--bar-h);
     }
     #screen-login.active { display: flex; }
 
     .login-card {
-      background: var(--se-white);
-      border-radius: 16px; padding: 48px 40px;
-      width: 100%; max-width: 440px;
-      box-shadow: var(--shadow-lg); text-align: center;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 52px 44px;
+      width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-l);
+      text-align: center;
     }
-    .login-icon {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: var(--se-green);
+    .login-logo {
+      width: 54px; height: 54px; border-radius: 13px;
+      background: var(--green);
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 24px;
+      margin: 0 auto 22px;
     }
+    .login-logo svg { width: 30px; height: 30px; }
     .login-card h1 {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 32px; font-weight: 700; margin-bottom: 6px;
+      font-size: 30px; font-weight: 700; margin-bottom: 6px;
     }
-    .login-card .subtitle { color: var(--se-mid); font-size: 14px; margin-bottom: 28px; }
-    .credit-pill {
-      display: inline-block;
-      background: var(--se-green-l); border: 1.5px solid var(--se-green);
-      color: var(--se-green-d); font-weight: 800; font-size: 20px;
-      border-radius: 10px; padding: 8px 22px; margin-bottom: 28px;
+    .login-card .sub { color: var(--grey-mid); font-size: 14px; margin-bottom: 26px; line-height: 1.5; }
+    .budget-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green-l); border: 1.5px solid var(--green);
+      color: var(--green-d); font-weight: 800; font-size: 18px;
+      border-radius: var(--radius-md); padding: 8px 20px; margin-bottom: 28px;
     }
-    .field input {
+    .login-card input[type="text"] {
       width: 100%; padding: 13px 16px;
-      border: 2px solid var(--se-border); border-radius: var(--radius);
+      border: 2px solid var(--grey-line); border-radius: var(--radius-sm);
       font-family: inherit; font-size: 15px; outline: none;
-      transition: border-color .2s; margin-bottom: 14px;
+      transition: border-color .2s; margin-bottom: 13px;
     }
-    .field input:focus { border-color: var(--se-green); }
-    .btn-primary {
-      width: 100%; padding: 14px;
-      background: var(--se-green); color: #fff;
-      border: none; border-radius: var(--radius);
+    .login-card input[type="text"]:focus { border-color: var(--green); }
+    .btn-green {
+      width: 100%; padding: 13px;
+      background: var(--green); color: #fff;
+      border: none; border-radius: var(--radius-sm);
       font-family: inherit; font-size: 15px; font-weight: 700;
       cursor: pointer; transition: background .15s, transform .1s;
     }
-    .btn-primary:hover { background: var(--se-green-d); }
-    .btn-primary:active { transform: scale(.98); }
-    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
-    .login-note { margin-top: 14px; font-size: 12px; color: #aaa; }
+    .btn-green:hover { background: var(--green-d); }
+    .btn-green:active { transform: scale(.98); }
+    .btn-green:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .login-hint { margin-top: 14px; font-size: 12px; color: #b0b0b0; }
 
-    /* ── FEATURES ── */
-    #screen-features { padding: 0 24px; }
-
-    .feature-page { display: none; }
-    .feature-page.active { display: block; }
-
-    .card {
-      background: var(--se-white); border-radius: 12px;
-      padding: 24px 28px; margin-bottom: 20px;
-      box-shadow: var(--shadow);
+    /* ─────────────────────────────────────────
+       LOADING / ERROR
+    ───────────────────────────────────────── */
+    #loading {
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 80px 0;
     }
-    .card-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      gap: 16px; flex-wrap: wrap;
+    #loading.show { display: flex; }
+    .spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--grey-line); border-top-color: var(--green); animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { color: var(--grey-mid); font-size: 14px; }
+    #error-box { display: none; background: #fff3f3; border: 1.5px solid var(--danger); border-radius: var(--radius-md); padding: 18px 22px; color: var(--danger); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+    #error-box.show { display: block; }
+
+    /* ─────────────────────────────────────────
+       FEATURE PAGE
+    ───────────────────────────────────────── */
+    .fpage { display: none; }
+    .fpage.active { display: flex; flex-direction: column; gap: 18px; }
+
+    /* ── Title block ── */
+    .fp-title-block {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 26px 28px;
+      box-shadow: var(--shadow-s);
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 16px;
+      flex-wrap: wrap;
     }
-    .card-header h2 {
+    .fp-title-left { flex: 1; min-width: 0; }
+    .fp-feature-num {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--green); margin-bottom: 6px;
+    }
+    .fp-title {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 28px; font-weight: 700;
-      flex: 1; min-width: 180px;
+      font-size: 32px; font-weight: 700; line-height: 1.1;
+      color: var(--dark);
     }
-    .jira-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 16px;
-      background: var(--se-dark); color: #fff;
-      border-radius: var(--radius); font-size: 13px; font-weight: 600;
-      text-decoration: none; transition: background .2s;
+    .fp-link-btn {
+      flex-shrink: 0; align-self: center;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 18px;
+      background: var(--dark); color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 700;
+      text-decoration: none; letter-spacing: .2px;
+      transition: background .15s;
+      white-space: nowrap;
     }
-    .jira-btn:hover { background: #333; }
-    .jira-btn svg { width: 14px; height: 14px; }
+    .fp-link-btn:hover { background: #333; }
+    .fp-link-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── Images block ── */
+    .fp-images-block {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-s);
+    }
+    .fp-block-header {
+      padding: 14px 22px 0;
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.1px; color: #bbb;
+    }
+    .fp-no-images {
+      padding: 20px 22px;
+      font-size: 13px; color: var(--grey-mid); font-style: italic;
+    }
 
     /* Carousel */
-    .carousel-outer { overflow: hidden; border-radius: 8px; background: #111; cursor: zoom-in; }
-    .carousel-track { display: flex; transition: transform .4s ease; }
-    .carousel-slide {
+    .car-wrap { position: relative; }
+    .car-outer {
+      background: #111;
+      cursor: zoom-in;
+      overflow: hidden;
+    }
+    .car-track { display: flex; transition: transform .38s cubic-bezier(.4,0,.2,1); }
+    .car-slide {
       flex-shrink: 0; width: 100%;
       display: flex; align-items: center; justify-content: center;
-      min-height: 260px; max-height: 440px;
+      min-height: 280px; max-height: 480px;
     }
-    .carousel-slide img {
-      max-width: 100%; max-height: 440px;
+    .car-slide img {
+      max-width: 100%; max-height: 480px;
       object-fit: contain; display: block;
     }
-    .carousel-wrap { position: relative; }
-    .c-btn {
+    .car-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 38px; height: 38px;
-      background: rgba(255,255,255,.9); border: none; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.9); border: none;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      cursor: pointer; z-index: 4;
+      box-shadow: 0 2px 8px rgba(0,0,0,.22);
       transition: background .15s;
     }
-    .c-btn:hover { background: #fff; }
-    .c-btn svg { width: 16px; height: 16px; }
-    .c-btn.prev { left: 10px; } .c-btn.next { right: 10px; }
-    .c-dots { display: flex; justify-content: center; gap: 7px; margin-top: 11px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--se-border); border: none; cursor: pointer; padding: 0; transition: background .2s, transform .2s; }
-    .dot.active { background: var(--se-green); transform: scale(1.35); }
-    .c-counter { text-align: center; font-size: 12px; color: var(--se-mid); margin-top: 6px; }
-
-    /* Desc */
-    .section-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .8px; margin-bottom: 12px;
+    .car-btn:hover { background: #fff; }
+    .car-btn svg { width: 15px; height: 15px; }
+    .car-btn.prev { left: 10px; }
+    .car-btn.next { right: 10px; }
+    .car-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 12px 20px 16px;
     }
-    .desc-text { color: #444; font-size: 15px; line-height: 1.72; }
+    .car-dots { display: flex; gap: 6px; align-items: center; }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--grey-line); border: none; padding: 0; cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .dot.active { background: var(--green); transform: scale(1.4); }
+    .car-counter {
+      font-size: 12px; color: var(--grey-mid);
+      font-variant-numeric: tabular-nums;
+    }
 
-    /* Credit input */
+    /* ── Description block ── */
+    .fp-desc-block {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 22px 28px;
+      box-shadow: var(--shadow-s);
+    }
+    .fp-block-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.1px; color: #bbb; margin-bottom: 12px;
+    }
+    .fp-desc-text {
+      font-size: 15px; color: #444; line-height: 1.75;
+    }
+
+    /* ── Credits block ── */
+    .fp-credit-block {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 22px 28px;
+      box-shadow: var(--shadow-s);
+      border-left: 4px solid var(--green);
+    }
+    .fp-credit-top {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .fp-credit-top .icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: var(--green-l);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .fp-credit-top .label { font-weight: 700; font-size: 15px; }
+    .fp-credit-top .hint { font-size: 12px; color: var(--grey-mid); margin-top: 1px; }
     .credit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .c-input-wrap { position: relative; display: flex; align-items: center; }
-    .c-input-wrap .currency { position: absolute; left: 13px; font-weight: 800; font-size: 18px; color: var(--se-green); pointer-events: none; }
-    .c-input-wrap input[type="number"] {
-      width: 130px; padding: 11px 12px 11px 32px;
-      border: 2px solid var(--se-border); border-radius: var(--radius);
-      font-family: inherit; font-size: 22px; font-weight: 800;
-      color: var(--se-dark); outline: none;
+    .ci-wrap { position: relative; display: inline-flex; align-items: center; }
+    .ci-wrap .sym { position: absolute; left: 13px; font-size: 18px; font-weight: 800; color: var(--green); pointer-events: none; }
+    .ci-wrap input[type="number"] {
+      width: 128px; padding: 11px 12px 11px 30px;
+      border: 2px solid var(--grey-line); border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 24px; font-weight: 800;
+      color: var(--dark); outline: none;
       -moz-appearance: textfield;
       transition: border-color .2s;
     }
-    .c-input-wrap input::-webkit-outer-spin-button,
-    .c-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .c-input-wrap input:focus { border-color: var(--se-green); }
-    .c-input-wrap input:disabled { background: #f8f8f8; color: #bbb; cursor: not-allowed; }
-    .c-input-wrap input.over { border-color: var(--danger); color: var(--danger); }
-    .c-pct { font-size: 14px; color: var(--se-mid); }
-    .c-warn { font-size: 13px; color: var(--danger); font-weight: 600; display: none; margin-top: 8px; width: 100%; }
-    .c-warn.show { display: block; }
+    .ci-wrap input::-webkit-outer-spin-button,
+    .ci-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .ci-wrap input:focus { border-color: var(--green); }
+    .ci-wrap input:disabled { background: #f8f8f8; color: #bbb; cursor: not-allowed; border-color: var(--grey-line); }
+    .ci-wrap input.over { border-color: var(--danger); color: var(--danger); }
+    .ci-pct { font-size: 14px; color: var(--grey-mid); }
+    .ci-warn { font-size: 13px; color: var(--danger); font-weight: 600; display: none; margin-top: 8px; width: 100%; }
+    .ci-warn.show { display: block; }
 
-    /* Submit */
-    .submit-wrap { text-align: center; margin: 28px 0 4px; }
-    .btn-submit {
-      padding: 14px 40px;
-      background: var(--se-green); color: #fff;
-      border: none; border-radius: var(--radius);
-      font-family: inherit; font-size: 16px; font-weight: 700;
-      cursor: pointer; transition: background .15s, transform .1s;
-      display: inline-flex; align-items: center; gap: 8px;
+    /* ─────────────────────────────────────────
+       SUBMITTED BANNER (in content area)
+    ───────────────────────────────────────── */
+    #submitted-banner {
+      display: none;
+      background: var(--green-l); border: 1.5px solid var(--green);
+      border-radius: var(--radius-md); padding: 16px 22px;
+      text-align: center; color: var(--green-d);
+      font-weight: 700; font-size: 15px; margin-bottom: 4px;
     }
-    .btn-submit:hover { background: var(--se-green-d); }
-    .btn-submit:active { transform: scale(.98); }
-    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-    .submitted-banner {
-      display: none; background: var(--se-green-l);
-      border: 1.5px solid var(--se-green); border-radius: 10px;
-      padding: 16px 22px; text-align: center;
-      color: var(--se-green-d); font-weight: 700; font-size: 15px;
-      margin-bottom: 14px;
-    }
-    .submitted-banner.show { display: block; }
+    #submitted-banner.show { display: block; }
 
-    /* ── CREDIT BAR ── */
+    /* ─────────────────────────────────────────
+       CREDIT BAR (fixed bottom)
+    ───────────────────────────────────────── */
     #credit-bar {
       display: none;
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      height: var(--credit-bar);
-      background: var(--se-dark);
-      align-items: center; gap: 18px; padding: 0 20px;
-      box-shadow: 0 -2px 16px rgba(0,0,0,.2);
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      height: var(--credit-h);
+      background: var(--dark);
+      align-items: center; gap: 16px;
+      padding: 0 28px;
+      box-shadow: 0 -2px 14px rgba(0,0,0,.22);
     }
     #credit-bar.visible { display: flex; }
-    .cb-item { text-align: center; flex-shrink: 0; }
-    .cb-item .val { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: #fff; line-height: 1; }
-    .cb-item .val.green { color: var(--se-green); }
-    .cb-item .val.red { color: var(--danger); }
-    .cb-item .lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .5px; }
-    .cb-sep { width: 1px; height: 30px; background: #333; flex-shrink: 0; }
-    .cb-track { flex: 1; height: 10px; background: #333; border-radius: 5px; overflow: hidden; }
-    .cb-fill { height: 100%; border-radius: 5px; background: var(--se-green); transition: width .3s, background .3s; }
-    .cb-fill.over { background: var(--danger); }
-    .cb-unit { font-size: 12px; color: #666; flex-shrink: 0; }
+    .cbar-item { text-align: center; flex-shrink: 0; }
+    .cbar-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px; font-weight: 700; color: #fff; line-height: 1;
+    }
+    .cbar-val.green { color: var(--green); }
+    .cbar-val.red   { color: var(--danger); }
+    .cbar-lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+    .cbar-sep { width: 1px; height: 30px; background: #2e2e2e; flex-shrink: 0; }
+    .cbar-track { flex: 1; height: 8px; background: #2e2e2e; border-radius: 4px; overflow: hidden; }
+    .cbar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .3s, background .3s; }
+    .cbar-fill.over { background: var(--danger); }
+    .cbar-unit { font-size: 11px; color: #555; flex-shrink: 0; }
 
-    /* ── MODAL ── */
+    /* ─────────────────────────────────────────
+       MODAL
+    ───────────────────────────────────────── */
     #modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,.5);
+      background: rgba(0,0,0,.55);
       align-items: center; justify-content: center;
     }
     #modal-overlay.open { display: flex; }
-    .modal-box {
-      background: var(--se-white); border-radius: 16px;
+    .modal {
+      background: var(--white); border-radius: var(--radius-lg);
       padding: 36px 28px; max-width: 460px; width: 90%;
-      box-shadow: var(--shadow-lg); text-align: center;
+      box-shadow: var(--shadow-l); text-align: center;
     }
     .modal-icon {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: var(--se-green-l);
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--green-l);
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 18px;
+      margin: 0 auto 16px;
     }
-    .modal-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-    .modal-box p { color: var(--se-mid); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+    .modal h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 24px; font-weight: 700; margin-bottom: 8px;
+    }
+    .modal p { color: var(--grey-mid); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
     .alloc-list {
-      text-align: left; background: var(--se-grey);
-      border-radius: 8px; padding: 12px 16px; margin-bottom: 22px;
-      max-height: 220px; overflow-y: auto;
+      text-align: left; background: var(--grey-bg);
+      border-radius: var(--radius-sm); padding: 12px 16px;
+      margin-bottom: 22px; max-height: 230px; overflow-y: auto;
     }
-    .alloc-row {
-      display: flex; justify-content: space-between;
-      font-size: 13px; padding: 5px 0;
-      border-bottom: 1px solid var(--se-border);
-    }
+    .alloc-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--grey-line); }
     .alloc-row:last-child { border-bottom: none; }
-    .alloc-row .amt { font-weight: 800; color: var(--se-green-d); }
-    .alloc-row.total { font-weight: 700; margin-top: 4px; }
-    .modal-btns { display: flex; gap: 12px; }
+    .alloc-row .amt { font-weight: 800; color: var(--green-d); }
+    .alloc-row.total-row { font-weight: 700; padding-top: 8px; }
+    .modal-btns { display: flex; gap: 10px; }
     .btn-ghost {
       flex: 1; padding: 12px;
-      background: transparent; border: 2px solid var(--se-border);
-      border-radius: var(--radius); font-family: inherit;
+      background: transparent; border: 2px solid var(--grey-line);
+      border-radius: var(--radius-sm); font-family: inherit;
       font-size: 14px; font-weight: 600; cursor: pointer;
-      color: var(--se-mid); transition: border-color .2s, color .2s;
+      color: var(--grey-mid); transition: border-color .2s, color .2s;
     }
-    .btn-ghost:hover { border-color: var(--se-dark); color: var(--se-dark); }
+    .btn-ghost:hover { border-color: var(--dark); color: var(--dark); }
     .btn-confirm {
       flex: 1; padding: 12px;
-      background: var(--se-green); border: none;
-      border-radius: var(--radius); font-family: inherit;
+      background: var(--green); border: none;
+      border-radius: var(--radius-sm); font-family: inherit;
       font-size: 14px; font-weight: 700; cursor: pointer;
       color: #fff; transition: background .15s;
     }
-    .btn-confirm:hover { background: var(--se-green-d); }
+    .btn-confirm:hover { background: var(--green-d); }
 
-    /* ── LIGHTBOX ── */
+    /* ─────────────────────────────────────────
+       LIGHTBOX
+    ───────────────────────────────────────── */
     #lightbox {
       display: none; position: fixed; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,.93);
+      background: rgba(0,0,0,.94);
       align-items: center; justify-content: center;
     }
     #lightbox.open { display: flex; }
-    #lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: 6px; }
-    #lb-close {
-      position: absolute; top: 18px; right: 22px;
-      background: none; border: none; color: #fff;
-      font-size: 30px; cursor: pointer; opacity: .8; line-height: 1;
-    }
+    #lb-img { max-width: 88vw; max-height: 86vh; object-fit: contain; border-radius: 6px; }
+    #lb-close { position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; opacity: .7; line-height: 1; transition: opacity .15s; }
     #lb-close:hover { opacity: 1; }
     .lb-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
-      color: #fff; width: 46px; height: 46px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 22px; transition: background .2s;
+      color: #fff; font-size: 22px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .15s;
     }
-    .lb-nav:hover { background: rgba(255,255,255,.22); }
-    #lb-prev { left: 18px; } #lb-next { right: 18px; }
+    .lb-nav:hover { background: rgba(255,255,255,.2); }
+    #lb-prev { left: 16px; } #lb-next { right: 16px; }
+    #lb-counter { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 13px; color: rgba(255,255,255,.6); }
 
-    /* ── LOADING / ERROR ── */
-    #loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 35vh; }
-    .spinner { width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--se-border); border-top-color: var(--se-green); animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #loading p { color: var(--se-mid); font-size: 14px; }
-    #error-box { display: none; background: #fff3f3; border: 1.5px solid var(--danger); border-radius: 10px; padding: 18px 22px; color: var(--danger); font-size: 14px; margin-bottom: 20px; }
-
-    @media (max-width: 600px) {
-      #screen-features { padding: 0 12px; }
-      .card { padding: 16px; }
-      .card-header h2 { font-size: 22px; }
-      #credit-bar { gap: 10px; padding: 0 12px; }
-      .cb-item .val { font-size: 18px; }
-      .login-card { padding: 32px 22px; }
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 680px) {
+      :root { --panel-w: 220px; }
+      #content { padding: 16px 14px calc(var(--credit-h) + 16px); }
+      .fp-title { font-size: 24px; }
+      .fp-title-block { padding: 18px; }
+      .fp-desc-block, .fp-credit-block { padding: 16px 18px; }
+      #credit-bar { padding: 0 14px; gap: 10px; }
+      .cbar-val { font-size: 18px; }
+    }
+    @media (max-width: 480px) {
+      #side-panel { display: none; }
+      #content { margin-left: 0; }
     }
   </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
+<!-- ═══════ TOP BAR ═══════ -->
 <nav id="topbar">
-  <div class="logo-area">
-    <svg viewBox="0 0 40 40" fill="none">
-      <rect width="40" height="40" rx="7" fill="#3DCD58"/>
-      <path d="M8 22h7l3-8 4 14 3-8 3 5h4" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span class="brand">Schneider Electric</span>
-    <div class="sep"></div>
-    <span class="appname">Feature Poker</span>
+  <div class="tb-brand">
+    <div class="se-mark">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M3 13h4l2-5 3 9 2-5 2 3h5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="wordmark">
+      <span class="co">Schneider Electric</span>
+      <span class="app">Feature Poker</span>
+    </div>
   </div>
-  <div id="feature-nav"></div>
-  <div id="user-chip">
-    <div class="avatar" id="user-avatar">?</div>
-    <div class="uname" id="user-name-chip">–</div>
+  <div class="tb-right">
+    <div class="tb-title" id="tb-title">Voting Session</div>
+    <div id="user-chip">
+      <div class="avatar" id="user-avatar">?</div>
+      <span class="uname" id="user-name-chip">–</span>
+    </div>
   </div>
 </nav>
 
-<!-- MAIN -->
-<div id="main">
+<!-- ═══════ APP SHELL ═══════ -->
+<div id="shell">
 
-  <!-- LOGIN SCREEN -->
-  <div id="screen-login" class="screen active">
-    <div class="login-card">
-      <div class="login-icon">
-        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-          <path d="M6 22h8l3-8 4 14 3-8 3 5h7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <h1>Feature Poker</h1>
-      <p class="subtitle">Prioritize features by distributing your budget across all proposals</p>
-      <div class="credit-pill">💰 100 USD Credits</div>
-      <div class="field">
-        <input type="text" id="voter-name" placeholder="Enter your full name…" maxlength="50" autocomplete="off"/>
-      </div>
-      <button class="btn-primary" id="btn-start" disabled>Start Voting →</button>
-      <p class="login-note">No password required · Submit your allocation once you're done</p>
-    </div>
-  </div>
-
-  <!-- FEATURES SCREEN -->
-  <div id="screen-features" class="screen">
-    <div id="loading">
-      <div class="spinner"></div>
-      <p>Loading features…</p>
-    </div>
-    <div id="error-box"></div>
-    <div id="features-container"></div>
-    <div id="submit-wrap" class="submit-wrap" style="display:none">
-      <div class="submitted-banner" id="submitted-banner">
-        ✅ Your allocation has been submitted! Thank you for participating.
-      </div>
-      <button class="btn-submit" id="btn-submit">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Submit My Allocation
+  <!-- LEFT PANEL -->
+  <aside id="side-panel" class="hidden">
+    <div class="panel-section-label">Features</div>
+    <div id="nav-list"></div>
+    <div class="panel-submit">
+      <button id="btn-submit" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit Allocation
       </button>
     </div>
-  </div>
+  </aside>
 
-</div>
+  <!-- CONTENT -->
+  <main id="content" class="no-panel">
 
-<!-- CREDIT BAR -->
-<div id="credit-bar">
-  <div class="cb-item">
-    <div class="val green">100</div>
-    <div class="lbl">Total</div>
-  </div>
-  <div class="cb-sep"></div>
-  <div class="cb-item">
-    <div class="val" id="cb-spent">0</div>
-    <div class="lbl">Spent</div>
-  </div>
-  <div class="cb-sep"></div>
-  <div class="cb-item">
-    <div class="val green" id="cb-remaining">100</div>
-    <div class="lbl">Remaining</div>
-  </div>
-  <div class="cb-track">
-    <div class="cb-fill" id="cb-fill" style="width:0%"></div>
-  </div>
-  <div class="cb-unit">USD</div>
-</div>
-
-<!-- CONFIRM MODAL -->
-<div id="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-icon">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3DCD58" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <!-- LOGIN -->
+    <div id="screen-login" class="screen active">
+      <div class="login-card">
+        <div class="login-logo">
+          <svg viewBox="0 0 24 24" fill="none" width="30" height="30">
+            <path d="M3 13h4l2-5 3 9 2-5 2 3h5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1>Feature Poker</h1>
+        <p class="sub">Distribute your budget across feature proposals<br>to signal what matters most.</p>
+        <div class="budget-pill">💰 100 USD Credits</div>
+        <input type="text" id="voter-name" placeholder="Enter your full name…" maxlength="50" autocomplete="off"/>
+        <button class="btn-green" id="btn-start" disabled>Start Voting →</button>
+        <p class="login-hint">No password required · Credits cannot exceed 100 USD total</p>
+      </div>
     </div>
-    <h3>Confirm Your Submission</h3>
-    <p>Please review your allocation below. Once confirmed, your vote is locked and cannot be changed.</p>
+
+    <!-- FEATURES -->
+    <div id="screen-features" class="screen">
+      <div id="loading"><div class="spinner"></div><p>Loading features…</p></div>
+      <div id="error-box"></div>
+      <div id="submitted-banner">✅ Your allocation has been submitted — thank you for voting!</div>
+      <div id="features-container"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════ CREDIT BAR ═══════ -->
+<div id="credit-bar">
+  <div class="cbar-item">
+    <div class="cbar-val green">100</div>
+    <div class="cbar-lbl">Total</div>
+  </div>
+  <div class="cbar-sep"></div>
+  <div class="cbar-item">
+    <div class="cbar-val" id="cb-spent">0</div>
+    <div class="cbar-lbl">Spent</div>
+  </div>
+  <div class="cbar-sep"></div>
+  <div class="cbar-item">
+    <div class="cbar-val green" id="cb-remaining">100</div>
+    <div class="cbar-lbl">Remaining</div>
+  </div>
+  <div class="cbar-track"><div class="cbar-fill" id="cb-fill" style="width:0%"></div></div>
+  <div class="cbar-unit">USD</div>
+</div>
+
+<!-- ═══════ CONFIRM MODAL ═══════ -->
+<div id="modal-overlay">
+  <div class="modal">
+    <div class="modal-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3DCD58" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h3>Confirm Your Allocation</h3>
+    <p>Review your credit distribution below. Once confirmed, your vote is locked and cannot be changed.</p>
     <div class="alloc-list" id="modal-list"></div>
     <div class="modal-btns">
       <button class="btn-ghost" id="modal-cancel">← Go Back</button>
@@ -479,65 +676,65 @@
   </div>
 </div>
 
-<!-- LIGHTBOX -->
+<!-- ═══════ LIGHTBOX ═══════ -->
 <div id="lightbox">
   <button id="lb-close">✕</button>
   <button class="lb-nav" id="lb-prev">&#8249;</button>
   <img id="lb-img" src="" alt="Feature image"/>
   <button class="lb-nav" id="lb-next">&#8250;</button>
+  <div id="lb-counter"></div>
 </div>
 
 <script>
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    CONFIGURATION
-   Update CSV_URL each sprint to point to your
-   raw GitHub CSV file, e.g.:
-   "https://raw.githubusercontent.com/YOUR_ORG/YOUR_REPO/main/features/sprint12.csv"
-══════════════════════════════════════════ */
+   Update this URL each sprint to point to your
+   GitHub-hosted CSV file.
+══════════════════════════════════════════════════ */
 const CSV_URL = "https://raw.githubusercontent.com/louichilles/FeaturePoker/refs/heads/main/features.csv";
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    STATE
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 const TOTAL = 100;
-let state = {
+const state = {
   voter: "",
   features: [],
-  credits: {},
+  credits: {},     // { idx: number }
+  carIdx: {},      // { idx: carouselSlide }
+  lbImgs: [],
+  lbIdx: 0,
   submitted: false,
   activeIdx: 0,
-  lbImages: [],
-  lbIdx: 0,
-  carIdx: {},
 };
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    HELPERS
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 const $ = id => document.getElementById(id);
 const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const sum = obj => Object.values(obj).reduce((a,b) => a+(Number(b)||0), 0);
+const truncate = (s, n) => s.length > n ? s.slice(0, n-1) + "…" : s;
+const sum = obj => Object.values(obj).reduce((a,b)=>a+(Number(b)||0), 0);
 const initials = n => n.trim().split(/\s+/).map(w=>w[0]).join("").toUpperCase().slice(0,2);
 const parseImgs = raw => (raw||"").split("|").map(s=>s.trim()).filter(Boolean).slice(0,10);
 
-/* ══════════════════════════════════════════
-   CSV PARSER
-══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   CSV PARSER  (handles quoted fields)
+══════════════════════════════════════════════════ */
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
   const headers = splitLine(lines[0]);
   return lines.slice(1).filter(l=>l.trim()).map(l => {
-    const vals = splitLine(l);
-    const obj = {};
+    const vals = splitLine(l), obj = {};
     headers.forEach((h,i) => obj[h.trim()] = (vals[i]||"").trim());
     return obj;
   });
 }
 function splitLine(line) {
-  const r = []; let cur="", inQ=false;
+  const r=[]; let cur="", inQ=false;
   for (let i=0; i<line.length; i++) {
-    const c = line[i];
+    const c=line[i];
     if (c==='"') inQ=!inQ;
     else if (c===',' && !inQ) { r.push(cur); cur=""; }
     else cur+=c;
@@ -545,210 +742,238 @@ function splitLine(line) {
   r.push(cur); return r;
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    LOAD CSV
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 async function loadFeatures() {
-  $("loading").style.display = "flex";
-  $("features-container").innerHTML = "";
-  $("error-box").style.display = "none";
-  $("submit-wrap").style.display = "none";
+  $("loading").classList.add("show");
+  $("features-container").innerHTML="";
+  $("error-box").classList.remove("show");
   try {
-    const r = await fetch(CSV_URL + "?_=" + Date.now());
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const text = await r.text();
-    const rows = parseCSV(text);
-    if (!rows.length) throw new Error("CSV appears to be empty or missing headers.");
+    const r = await fetch(CSV_URL+"?_="+Date.now());
+    if (!r.ok) throw new Error("HTTP "+r.status+" — check that the CSV URL is correct and publicly accessible.");
+    const rows = parseCSV(await r.text());
+    if (!rows.length) throw new Error("No data rows found. Check CSV format and headers.");
     state.features = rows;
     state.credits = {};
     state.carIdx = {};
-    rows.forEach((_,i) => { state.credits[i]=0; state.carIdx[i]=0; });
-    $("loading").style.display = "none";
+    rows.forEach((_,i)=>{ state.credits[i]=0; state.carIdx[i]=0; });
+    $("loading").classList.remove("show");
     renderNav();
     renderFeatures();
-    $("submit-wrap").style.display = "block";
     showFeature(0);
     updateCreditBar();
   } catch(e) {
-    $("loading").style.display = "none";
-    $("error-box").style.display = "block";
-    $("error-box").innerHTML = `<strong>⚠️ Could not load features</strong><br>${esc(e.message)}<br><br>
-      Check that <code>CSV_URL</code> in the source points to a valid, publicly accessible CSV file.`;
+    $("loading").classList.remove("show");
+    $("error-box").classList.add("show");
+    $("error-box").innerHTML = `<strong>⚠️ Could not load features</strong><br>${esc(e.message)}`;
   }
 }
 
-/* ══════════════════════════════════════════
-   RENDER NAV
-══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   SIDE PANEL NAV
+══════════════════════════════════════════════════ */
 function renderNav() {
-  const nav = $("feature-nav");
-  nav.innerHTML = "";
+  const list = $("nav-list");
+  list.innerHTML = "";
   state.features.forEach((f,i) => {
-    const t = document.createElement("div");
-    t.className = "nav-tab" + (i===0?" active":"");
-    t.dataset.i = i;
-    t.innerHTML = `${esc(f.FeatureTitle||"Feature "+(i+1))} <span class="badge empty" id="badge-${i}">$0</span>`;
-    t.addEventListener("click", () => showFeature(i));
-    nav.appendChild(t);
+    const title = f.FeatureTitle || "Feature "+(i+1);
+    const item = document.createElement("div");
+    item.className = "nav-item"+(i===0?" active":"");
+    item.dataset.i = i;
+    item.innerHTML = `
+      <div class="nav-index">${i+1}</div>
+      <div class="nav-label" title="${esc(title)}">${esc(truncate(title, 32))}</div>
+      <div class="nav-badge empty" id="nbadge-${i}">$0</div>`;
+    item.addEventListener("click", ()=>showFeature(i));
+    list.appendChild(item);
   });
+  $("btn-submit").disabled = false;
 }
-function updateBadges() {
-  state.features.forEach((_,i) => {
-    const b = $("badge-"+i); if(!b) return;
-    const v = state.credits[i]||0;
-    b.textContent = "$"+v;
-    b.className = "badge"+(v>0?"":" empty");
+
+function updateNavBadges() {
+  state.features.forEach((_,i)=>{
+    const b=$("nbadge-"+i); if(!b) return;
+    const v=state.credits[i]||0;
+    b.textContent="$"+v;
+    b.className="nav-badge"+(v>0?"":" empty");
   });
 }
 
-/* ══════════════════════════════════════════
-   RENDER FEATURE PAGES
-══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   FEATURE PAGES
+══════════════════════════════════════════════════ */
 function renderFeatures() {
   const container = $("features-container");
   container.innerHTML = "";
+
   state.features.forEach((f,i) => {
     const imgs = parseImgs(f.FeatureImageURLs);
+    const title = f.FeatureTitle || "Untitled Feature";
     const page = document.createElement("div");
-    page.className = "feature-page";
+    page.className = "fpage";
     page.id = "fpage-"+i;
 
-    /* build carousel html */
-    let carouselHtml = "";
+    /* ── Carousel HTML ── */
+    let carHtml = "";
     if (imgs.length) {
-      const slides = imgs.map((url,si) => `
-        <div class="carousel-slide" data-fi="${i}" data-si="${si}">
+      const slides = imgs.map((url,si)=>`
+        <div class="car-slide" data-fi="${i}" data-si="${si}">
           <img src="${esc(url)}" alt="Image ${si+1}" loading="lazy"
-            onerror="this.closest('.carousel-slide').style.display='none'"/>
+            onerror="this.closest('.car-slide').style.display='none'"/>
         </div>`).join("");
-      const navBtns = imgs.length>1 ? `
-        <button class="c-btn prev" data-fi="${i}">
+
+      const navBtns = imgs.length > 1 ? `
+        <button class="car-btn prev" data-fi="${i}" aria-label="Previous">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <button class="c-btn next" data-fi="${i}">
+        <button class="car-btn next" data-fi="${i}" aria-label="Next">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>` : "";
-      const dots = imgs.length>1 ? `
-        <div class="c-dots" id="dots-${i}">
-          ${imgs.map((_,si)=>`<button class="dot${si===0?" active":""}" data-fi="${i}" data-si="${si}"></button>`).join("")}
-        </div>
-        <div class="c-counter" id="counter-${i}">1 / ${imgs.length}</div>` : "";
-      carouselHtml = `
-        <div class="card" style="padding:16px">
-          <div class="carousel-wrap">
-            <div class="carousel-outer">
-              <div class="carousel-track" id="track-${i}">${slides}</div>
+
+      const footer = imgs.length > 1 ? `
+        <div class="car-footer">
+          <div class="car-dots" id="cdots-${i}">
+            ${imgs.map((_,si)=>`<button class="dot${si===0?" active":""}" data-fi="${i}" data-si="${si}" aria-label="Go to image ${si+1}"></button>`).join("")}
+          </div>
+          <span class="car-counter" id="ccounter-${i}">1 / ${imgs.length}</span>
+        </div>` : "";
+
+      carHtml = `
+        <div class="fp-images-block">
+          <div class="fp-block-header">Images</div>
+          <div class="car-wrap">
+            <div class="car-outer">
+              <div class="car-track" id="ctrack-${i}">${slides}</div>
               ${navBtns}
             </div>
-            ${dots}
+            ${footer}
           </div>
+        </div>`;
+    } else {
+      carHtml = `
+        <div class="fp-images-block">
+          <div class="fp-block-header">Images</div>
+          <p class="fp-no-images">No images provided for this feature.</p>
         </div>`;
     }
 
     page.innerHTML = `
-      <div class="card">
-        <div class="card-header">
-          <h2>${esc(f.FeatureTitle||"Untitled Feature")}</h2>
-          ${f.FeatureLink ? `<a class="jira-btn" href="${esc(f.FeatureLink)}" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            Open in JIRA</a>` : ""}
+      <!-- Title block -->
+      <div class="fp-title-block">
+        <div class="fp-title-left">
+          <div class="fp-feature-num">Feature ${i+1} of ${state.features.length}</div>
+          <h2 class="fp-title">${esc(title)}</h2>
         </div>
+        ${f.FeatureLink ? `
+          <a class="fp-link-btn" href="${esc(f.FeatureLink)}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Open in JIRA
+          </a>` : ""}
       </div>
-      ${carouselHtml}
+
+      <!-- Images block -->
+      ${carHtml}
+
       ${f.FeatureDescription ? `
-        <div class="card">
-          <div class="section-title">Description</div>
-          <p class="desc-text">${esc(f.FeatureDescription).replace(/\n/g,"<br>")}</p>
+        <!-- Description block -->
+        <div class="fp-desc-block">
+          <div class="fp-block-label">Description</div>
+          <p class="fp-desc-text">${esc(f.FeatureDescription).replace(/\n/g,"<br>")}</p>
         </div>` : ""}
-      <div class="card">
-        <div class="section-title">💰 Your Credit Allocation</div>
-        <p style="font-size:13px;color:var(--se-mid);margin-bottom:16px">
-          How many of your 100 USD credits do you place on this feature?
-        </p>
-        <div class="credit-row">
-          <div class="c-input-wrap">
-            <span class="currency">$</span>
-            <input type="number" class="credit-input" id="cinput-${i}" data-fi="${i}"
-              min="0" max="100" step="1" value="0"/>
+
+      <!-- Credits block -->
+      <div class="fp-credit-block">
+        <div class="fp-credit-top">
+          <div class="icon">💰</div>
+          <div>
+            <div class="label">Your Credit Allocation</div>
+            <div class="hint">How many of your 100 USD credits do you place on this feature?</div>
           </div>
-          <span class="c-pct" id="cpct-${i}">0% of total</span>
         </div>
-        <div class="c-warn" id="cwarn-${i}">⚠️ Not enough remaining credits!</div>
+        <div class="credit-row">
+          <div class="ci-wrap">
+            <span class="sym">$</span>
+            <input type="number" class="credit-input" id="cinput-${i}" data-fi="${i}"
+              min="0" max="100" step="1" value="0" inputmode="numeric"/>
+          </div>
+          <span class="ci-pct" id="cipct-${i}">0% of budget</span>
+        </div>
+        <div class="ci-warn" id="ciwarn-${i}">⚠️ You don't have enough remaining credits!</div>
       </div>`;
 
     container.appendChild(page);
 
-    /* carousel click → lightbox */
-    page.querySelectorAll(".carousel-slide").forEach(slide => {
-      slide.addEventListener("click", () => {
-        openLightbox(parseImgs(state.features[+slide.dataset.fi].FeatureImageURLs), +slide.dataset.si);
-      });
+    /* ── bind carousel events ── */
+    page.querySelectorAll(".car-slide").forEach(slide => {
+      slide.addEventListener("click", () =>
+        openLightbox(parseImgs(state.features[+slide.dataset.fi].FeatureImageURLs), +slide.dataset.si));
     });
-    /* carousel prev/next */
-    page.querySelectorAll(".c-btn").forEach(btn => {
+    page.querySelectorAll(".car-btn").forEach(btn => {
       btn.addEventListener("click", e => {
         e.stopPropagation();
-        carMove(+btn.dataset.fi, btn.classList.contains("next") ? 1 : -1);
+        carMove(+btn.dataset.fi, btn.classList.contains("next")?1:-1);
       });
     });
-    /* dots */
     page.querySelectorAll(".dot").forEach(d => {
       d.addEventListener("click", () => carGoTo(+d.dataset.fi, +d.dataset.si));
     });
-    /* credit input */
-    const inp = page.querySelector(".credit-input");
-    inp.addEventListener("input", () => onCredit(i));
+
+    /* ── bind credit input ── */
+    page.querySelector(".credit-input").addEventListener("input", ()=>onCredit(i));
   });
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    CAROUSEL
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 function carMove(fi, dir) {
   const len = parseImgs(state.features[fi].FeatureImageURLs).length;
-  let idx = (state.carIdx[fi] + dir + len) % len;
-  carGoTo(fi, idx);
+  carGoTo(fi, (state.carIdx[fi]+dir+len)%len);
 }
 function carGoTo(fi, idx) {
   state.carIdx[fi] = idx;
-  const track = $("track-"+fi);
+  const track = $("ctrack-"+fi);
   if (track) track.style.transform = `translateX(-${idx*100}%)`;
-  document.querySelectorAll(`#dots-${fi} .dot`).forEach((d,i) => d.classList.toggle("active", i===idx));
-  const ctr = $("counter-"+fi);
-  if (ctr) ctr.textContent = (idx+1)+" / "+parseImgs(state.features[fi].FeatureImageURLs).length;
+  document.querySelectorAll(`#cdots-${fi} .dot`).forEach((d,i)=>d.classList.toggle("active",i===idx));
+  const ctr=$("ccounter-"+fi);
+  if (ctr) ctr.textContent=(idx+1)+" / "+parseImgs(state.features[fi].FeatureImageURLs).length;
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    LIGHTBOX
-══════════════════════════════════════════ */
-function openLightbox(imgs, idx) {
-  state.lbImages = imgs; state.lbIdx = idx;
-  refreshLb();
+══════════════════════════════════════════════════ */
+function openLightbox(imgs,idx) {
+  state.lbImgs=imgs; state.lbIdx=idx; refreshLb();
   $("lightbox").classList.add("open");
 }
 function refreshLb() {
-  $("lb-img").src = state.lbImages[state.lbIdx]||"";
-  const multi = state.lbImages.length > 1;
-  $("lb-prev").style.display = multi ? "flex" : "none";
-  $("lb-next").style.display = multi ? "flex" : "none";
+  $("lb-img").src = state.lbImgs[state.lbIdx]||"";
+  const multi = state.lbImgs.length>1;
+  $("lb-prev").style.display = multi?"flex":"none";
+  $("lb-next").style.display = multi?"flex":"none";
+  $("lb-counter").textContent = multi ? (state.lbIdx+1)+" / "+state.lbImgs.length : "";
 }
-$("lb-close").addEventListener("click", () => $("lightbox").classList.remove("open"));
-$("lightbox").addEventListener("click", e => { if(e.target===$("lightbox")) $("lightbox").classList.remove("open"); });
-$("lb-prev").addEventListener("click", () => { state.lbIdx=(state.lbIdx-1+state.lbImages.length)%state.lbImages.length; refreshLb(); });
-$("lb-next").addEventListener("click", () => { state.lbIdx=(state.lbIdx+1)%state.lbImages.length; refreshLb(); });
-document.addEventListener("keydown", e => {
+$("lb-close").onclick = ()=>$("lightbox").classList.remove("open");
+$("lightbox").addEventListener("click", e=>{ if(e.target===$("lightbox")) $("lightbox").classList.remove("open"); });
+$("lb-prev").onclick = ()=>{ state.lbIdx=(state.lbIdx-1+state.lbImgs.length)%state.lbImgs.length; refreshLb(); };
+$("lb-next").onclick = ()=>{ state.lbIdx=(state.lbIdx+1)%state.lbImgs.length; refreshLb(); };
+document.addEventListener("keydown", e=>{
   if (!$("lightbox").classList.contains("open")) return;
   if (e.key==="Escape") $("lightbox").classList.remove("open");
-  if (e.key==="ArrowLeft") { state.lbIdx=(state.lbIdx-1+state.lbImages.length)%state.lbImages.length; refreshLb(); }
-  if (e.key==="ArrowRight") { state.lbIdx=(state.lbIdx+1)%state.lbImages.length; refreshLb(); }
+  if (e.key==="ArrowLeft") { state.lbIdx=(state.lbIdx-1+state.lbImgs.length)%state.lbImgs.length; refreshLb(); }
+  if (e.key==="ArrowRight") { state.lbIdx=(state.lbIdx+1)%state.lbImgs.length; refreshLb(); }
 });
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    CREDIT LOGIC
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 function onCredit(fi) {
   const inp = $("cinput-"+fi);
-  let val = parseInt(inp.value, 10);
+  let val = parseInt(inp.value,10);
   if (isNaN(val)||val<0) val=0;
   if (val>100) val=100;
 
@@ -759,113 +984,117 @@ function onCredit(fi) {
   if (otherSpent+val > TOTAL) {
     val = Math.max(0, TOTAL-otherSpent);
     inp.classList.add("over");
-    $("cwarn-"+fi).classList.add("show");
-    setTimeout(()=>{ inp.classList.remove("over"); $("cwarn-"+fi).classList.remove("show"); }, 1600);
+    $("ciwarn-"+fi).classList.add("show");
+    setTimeout(()=>{ inp.classList.remove("over"); $("ciwarn-"+fi).classList.remove("show"); }, 1800);
   } else {
     inp.classList.remove("over");
-    $("cwarn-"+fi).classList.remove("show");
+    $("ciwarn-"+fi).classList.remove("show");
   }
   inp.value = val;
   state.credits[fi] = val;
-  $("cpct-"+fi).textContent = val+"% of total";
+  $("cipct-"+fi).textContent = val+"% of budget";
   updateCreditBar();
-  updateBadges();
+  updateNavBadges();
 }
 
 function updateCreditBar() {
   const spent = sum(state.credits);
-  const rem = TOTAL - spent;
+  const rem = TOTAL-spent;
   $("cb-spent").textContent = spent;
   $("cb-remaining").textContent = rem;
-  $("cb-remaining").className = "val"+(rem<0?" red":" green");
-  const fill = $("cb-fill");
-  fill.style.width = Math.min((spent/TOTAL)*100,100)+"%";
-  fill.classList.toggle("over", spent>TOTAL);
+  $("cb-remaining").className = "cbar-val"+(rem<0?" red":" green");
+  const pct = Math.min((spent/TOTAL)*100,100);
+  $("cb-fill").style.width = pct+"%";
+  $("cb-fill").classList.toggle("over", spent>TOTAL);
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    NAVIGATION
-══════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 function showFeature(idx) {
-  state.activeIdx = idx;
-  document.querySelectorAll(".feature-page").forEach((p,i) => p.classList.toggle("active", i===idx));
-  document.querySelectorAll(".nav-tab").forEach((t,i) => t.classList.toggle("active", i===idx));
-  const tab = document.querySelector(".nav-tab.active");
-  if (tab) tab.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});
+  state.activeIdx=idx;
+  document.querySelectorAll(".fpage").forEach((p,i)=>p.classList.toggle("active",i===idx));
+  document.querySelectorAll(".nav-item").forEach((t,i)=>t.classList.toggle("active",i===idx));
+  const f = state.features[idx];
+  if (f) $("tb-title").innerHTML = `<span>${esc(f.FeatureTitle||"Feature "+(idx+1))}</span>`;
+  // scroll nav item into view
+  const activeItem = document.querySelector(".nav-item.active");
+  if (activeItem) activeItem.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    SUBMIT
-══════════════════════════════════════════ */
-$("btn-submit").addEventListener("click", () => { if (!state.submitted) openModal(); });
+══════════════════════════════════════════════════ */
+$("btn-submit").addEventListener("click", ()=>{ if(!state.submitted) openModal(); });
 
 function openModal() {
-  const rows = state.features.map((f,i) => {
-    const v = state.credits[i]||0;
+  const rows = state.features.map((f,i)=>{
+    const v=state.credits[i]||0;
     return `<div class="alloc-row"><span>${esc(f.FeatureTitle||"Feature "+(i+1))}</span><span class="amt">$${v}</span></div>`;
   }).join("");
-  const spent = sum(state.credits);
-  $("modal-list").innerHTML = rows + `<div class="alloc-row total"><span>Total Spent</span><span class="amt">$${spent} / $${TOTAL}</span></div>`;
+  const spent=sum(state.credits);
+  $("modal-list").innerHTML=rows+`<div class="alloc-row total-row"><span>Total Spent</span><span class="amt">$${spent} / $${TOTAL}</span></div>`;
   $("modal-overlay").classList.add("open");
 }
-
-$("modal-cancel").addEventListener("click", () => $("modal-overlay").classList.remove("open"));
-$("modal-confirm").addEventListener("click", () => {
-  $("modal-overlay").classList.remove("open");
-  doSubmit();
-});
+$("modal-cancel").onclick = ()=>$("modal-overlay").classList.remove("open");
+$("modal-confirm").onclick = ()=>{ $("modal-overlay").classList.remove("open"); doSubmit(); };
 
 function doSubmit() {
   state.submitted = true;
-  document.querySelectorAll(".credit-input").forEach(inp => inp.disabled=true);
+  // freeze all inputs
+  document.querySelectorAll(".credit-input").forEach(inp=>inp.disabled=true);
+  // update submit button
+  const sb=$("btn-submit");
+  sb.disabled=true;
+  sb.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Submitted`;
+  // show banner
   $("submitted-banner").classList.add("show");
-  const btn = $("btn-submit");
-  btn.disabled = true;
-  btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Submitted`;
 
-  /* ── Google Sheets hook ──────────────────────────────────────
-     Replace SHEETS_ENDPOINT with your Apps Script Web App URL.
-     Data format matches: FeatureTitle, FeatureLink, Timestamp,
-     UserName, CreditsAllocated — one row per feature.
-  ──────────────────────────────────────────────────────────── */
-  const SHEETS_ENDPOINT = ""; // TODO: add your Google Apps Script URL here
-  const timestamp = new Date().toISOString();
-  const payload = state.features.map((f,i) => ({
-    FeatureTitle: f.FeatureTitle || "",
-    FeatureLink:  f.FeatureLink  || "",
-    Timestamp:    timestamp,
-    UserName:     state.voter,
+  /* ── Google Sheets hook ─────────────────────────────────────────
+     When ready: paste your Apps Script Web App URL as SHEETS_URL.
+     Each feature becomes one row:
+     FeatureTitle | FeatureLink | Timestamp | UserName | CreditsAllocated
+  ─────────────────────────────────────────────────────────────── */
+  const SHEETS_URL = ""; // TODO: add your Google Apps Script Web App URL here
+  const ts = new Date().toISOString();
+  const payload = state.features.map((f,i)=>({
+    FeatureTitle:     f.FeatureTitle||"",
+    FeatureLink:      f.FeatureLink||"",
+    Timestamp:        ts,
+    UserName:         state.voter,
     CreditsAllocated: state.credits[i]||0,
   }));
 
-  console.log("Feature Poker submission:", payload);
+  console.log("Feature Poker submission →", payload);
 
-  if (SHEETS_ENDPOINT) {
-    fetch(SHEETS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ rows: payload }),
-    }).catch(err => console.warn("Sheets sync failed:", err));
+  if (SHEETS_URL) {
+    fetch(SHEETS_URL, {
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({rows:payload}),
+    }).catch(err=>console.warn("Sheets sync error:", err));
   }
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    LOGIN
-══════════════════════════════════════════ */
-const nameEl = $("voter-name");
-const startEl = $("btn-start");
-nameEl.addEventListener("input", () => { startEl.disabled = nameEl.value.trim().length < 2; });
-nameEl.addEventListener("keydown", e => { if (e.key==="Enter"&&!startEl.disabled) startEl.click(); });
-startEl.addEventListener("click", () => {
-  const name = nameEl.value.trim(); if (!name) return;
-  state.voter = name;
-  $("user-avatar").textContent = initials(name);
-  $("user-name-chip").textContent = name;
-  $("user-chip").style.display = "flex";
+══════════════════════════════════════════════════ */
+const nameEl=$("voter-name"), startEl=$("btn-start");
+nameEl.addEventListener("input",()=>{ startEl.disabled=nameEl.value.trim().length<2; });
+nameEl.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!startEl.disabled) startEl.click(); });
+startEl.addEventListener("click",()=>{
+  const name=nameEl.value.trim(); if(!name) return;
+  state.voter=name;
+  $("user-avatar").textContent=initials(name);
+  $("user-name-chip").textContent=name;
+  $("user-chip").style.display="flex";
+  // switch layout
   $("screen-login").classList.remove("active");
   $("screen-features").classList.add("active");
+  $("side-panel").classList.remove("hidden");
+  $("content").classList.remove("no-panel");
   $("credit-bar").classList.add("visible");
+  $("tb-title").textContent="Voting Session";
   loadFeatures();
 });
 </script>
