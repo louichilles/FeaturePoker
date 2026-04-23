@@ -1066,7 +1066,7 @@ function doSubmit() {
      Each feature becomes one row:
      FeatureTitle | FeatureLink | Timestamp | UserName | CreditsAllocated
   ─────────────────────────────────────────────────────────────── */
-  const SHEETS_URL = ""; // TODO: add your Google Apps Script Web App URL here
+  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbyhM0PXeHTdZQ17HsKBGO6HOBJKpI5T18IalDH57hxBmRsm2nHtNRxGLxhcf01gBWHH/exec"; // TODO: add your Google Apps Script Web App URL here
   const ts = new Date().toISOString();
   const payload = state.features.map((f,i)=>({
     FeatureTitle:     f.FeatureTitle||"",
