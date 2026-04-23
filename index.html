@@ -1,769 +1,873 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feature Poker — Schneider Electric</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f5f7; min-height: 100vh; display: flex; flex-direction: column; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feature Poker – Schneider Electric</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --se-green:   #3DCD58;
+      --se-green-d: #29A83C;
+      --se-green-l: #E8FAE9;
+      --se-dark:    #1A1A1A;
+      --se-grey:    #F5F5F5;
+      --se-mid:     #6B6B6B;
+      --se-border:  #E0E0E0;
+      --se-white:   #FFFFFF;
+      --danger:     #E53935;
+      --bar-h:      64px;
+      --credit-bar: 72px;
+      --radius:     8px;
+      --shadow:     0 2px 12px rgba(0,0,0,.10);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,.16);
+    }
 
-  :root {
-    --se-green: #3DCD58;
-    --se-green-dark: #2BA147;
-    --se-navy: #1B2A47;
-    --se-navy-light: #253555;
-    --bg-primary: #ffffff;
-    --bg-secondary: #f4f5f7;
-    --bg-tertiary: #eaecef;
-    --text-primary: #1a1a1a;
-    --text-secondary: #6b7280;
-    --border: rgba(0,0,0,0.12);
-    --border-strong: rgba(0,0,0,0.22);
-    --radius-md: 8px;
-    --radius-lg: 12px;
-  }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .app { display: flex; flex-direction: column; min-height: 100vh; }
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background: var(--se-grey);
+      color: var(--se-dark);
+      min-height: 100vh;
+    }
 
-  .nav {
-    background: var(--se-navy);
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    border-bottom: 3px solid var(--se-green);
-    position: sticky; top: 0; z-index: 20;
-  }
-  .nav-logo { display: flex; align-items: center; gap: 10px; }
-  .se-logo {
-    width: 28px; height: 28px;
-    background: var(--se-green);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 11px; color: #fff; letter-spacing: -0.5px;
-  }
-  .nav-title { color: #fff; font-size: 15px; font-weight: 500; letter-spacing: 0.2px; }
-  .nav-mode-btns { display: flex; gap: 6px; }
-  .mode-btn {
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.15s;
-  }
-  .mode-btn.active { background: var(--se-green); color: #fff; border-color: var(--se-green); }
-  .mode-btn:not(.active) { background: transparent; color: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.2); }
-  .mode-btn:not(.active):hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    /* ── TOP NAV ── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--bar-h);
+      background: var(--se-dark);
+      display: flex; align-items: center;
+      box-shadow: var(--shadow);
+    }
+    .logo-area {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 20px; flex-shrink: 0;
+      border-right: 1px solid #333;
+      height: 100%;
+    }
+    .logo-area svg { width: 30px; height: 30px; }
+    .logo-area .brand {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 17px; font-weight: 700;
+      color: var(--se-white); white-space: nowrap;
+    }
+    .logo-area .sep { width: 1px; height: 18px; background: #555; margin: 0 4px; }
+    .logo-area .appname { color: var(--se-green); font-size: 15px; }
 
-  .tabs-bar {
-    background: var(--bg-primary);
-    border-bottom: 0.5px solid var(--border);
-    padding: 0 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    position: sticky; top: 59px; z-index: 15;
-  }
-  .tabs-bar::-webkit-scrollbar { display: none; }
-  .tab {
-    padding: 10px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    transition: all 0.15s;
-    user-select: none;
-  }
-  .tab.active { color: var(--se-green-dark); border-bottom-color: var(--se-green); font-weight: 500; }
-  .tab:hover:not(.active) { color: var(--text-primary); }
-  .tab-add {
-    padding: 8px 10px;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--se-green);
-    border-bottom: 2px solid transparent;
-    font-weight: 300;
-    flex-shrink: 0;
-    transition: transform 0.15s;
-    line-height: 1;
-  }
-  .tab-add:hover { transform: scale(1.2); }
+    #feature-nav {
+      display: flex; align-items: center;
+      overflow-x: auto; flex: 1; height: 100%;
+      scrollbar-width: none;
+    }
+    #feature-nav::-webkit-scrollbar { display: none; }
 
-  .content { flex: 1; padding: 1.5rem; padding-bottom: 100px; }
+    .nav-tab {
+      flex-shrink: 0; height: 100%;
+      padding: 0 16px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+      color: #AAA; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color .2s, border-color .2s, background .2s;
+      white-space: nowrap;
+    }
+    .nav-tab:hover { color: #fff; background: #2a2a2a; }
+    .nav-tab.active { color: var(--se-green); border-bottom-color: var(--se-green); }
+    .nav-tab .badge {
+      background: var(--se-green); color: #fff;
+      font-size: 10px; font-weight: 800;
+      border-radius: 10px; padding: 1px 7px;
+    }
+    .nav-tab .badge.empty { background: #444; color: #777; }
 
-  .feature-page { display: flex; flex-direction: column; gap: 1rem; max-width: 860px; margin: 0 auto; }
+    #user-chip {
+      display: none; flex-shrink: 0;
+      align-items: center; gap: 8px;
+      padding: 0 16px; height: 100%;
+      border-left: 1px solid #333;
+    }
+    #user-chip .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--se-green);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 12px; color: #fff;
+    }
+    #user-chip .uname { font-size: 13px; color: #ccc; max-width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  .field-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-  }
+    /* ── MAIN ── */
+    #main {
+      padding-top: calc(var(--bar-h) + 24px);
+      padding-bottom: calc(var(--credit-bar) + 24px);
+    }
 
-  .section-card {
-    background: var(--bg-primary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-  }
+    .screen { display: none; }
+    .screen.active { display: block; }
 
-  .feature-title-input {
-    width: 100%;
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--text-primary);
-    background: transparent;
-    border: none;
-    border-bottom: 1.5px solid var(--border);
-    padding: 6px 0;
-    outline: none;
-    transition: border-color 0.15s;
-    font-family: inherit;
-  }
-  .feature-title-input:focus { border-bottom-color: var(--se-green); }
-  .feature-title-input[readonly] { cursor: default; }
+    /* ── LOGIN ── */
+    #screen-login {
+      min-height: 100vh;
+      align-items: center; justify-content: center;
+      padding-top: var(--bar-h);
+    }
+    #screen-login.active { display: flex; }
 
-  .desc-area {
-    width: 100%;
-    min-height: 90px;
-    resize: vertical;
-    padding: 10px 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.15s;
-  }
-  .desc-area:focus { border-color: var(--se-green); }
-  .desc-area[readonly] { cursor: default; background: var(--bg-secondary); }
+    .login-card {
+      background: var(--se-white);
+      border-radius: 16px; padding: 48px 40px;
+      width: 100%; max-width: 440px;
+      box-shadow: var(--shadow-lg); text-align: center;
+    }
+    .login-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--se-green);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .login-card h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 32px; font-weight: 700; margin-bottom: 6px;
+    }
+    .login-card .subtitle { color: var(--se-mid); font-size: 14px; margin-bottom: 28px; }
+    .credit-pill {
+      display: inline-block;
+      background: var(--se-green-l); border: 1.5px solid var(--se-green);
+      color: var(--se-green-d); font-weight: 800; font-size: 20px;
+      border-radius: 10px; padding: 8px 22px; margin-bottom: 28px;
+    }
+    .field input {
+      width: 100%; padding: 13px 16px;
+      border: 2px solid var(--se-border); border-radius: var(--radius);
+      font-family: inherit; font-size: 15px; outline: none;
+      transition: border-color .2s; margin-bottom: 14px;
+    }
+    .field input:focus { border-color: var(--se-green); }
+    .btn-primary {
+      width: 100%; padding: 14px;
+      background: var(--se-green); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .15s, transform .1s;
+    }
+    .btn-primary:hover { background: var(--se-green-d); }
+    .btn-primary:active { transform: scale(.98); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+    .login-note { margin-top: 14px; font-size: 12px; color: #aaa; }
 
-  .image-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
-  .img-wrapper { position: relative; }
-  .img-thumb {
-    width: 120px; height: 90px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    border: 0.5px solid var(--border);
-    cursor: pointer;
-    transition: transform 0.15s;
-    display: block;
-  }
-  .img-thumb:hover { transform: scale(1.03); }
-  .img-remove {
-    position: absolute;
-    top: -6px; right: -6px;
-    width: 20px; height: 20px;
-    background: #e24b4a;
-    color: #fff;
-    border-radius: 50%;
-    border: none;
-    font-size: 11px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .upload-btn {
-    width: 120px; height: 90px;
-    border: 1.5px dashed var(--border-strong);
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: 11px;
-    transition: border-color 0.15s, color 0.15s;
-    background: var(--bg-secondary);
-  }
-  .upload-btn:hover { border-color: var(--se-green); color: var(--se-green-dark); }
-  .upload-icon { font-size: 20px; }
+    /* ── FEATURES ── */
+    #screen-features { padding: 0 24px; }
 
-  .lightbox-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.75);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-  }
-  .lightbox-img { max-width: 90vw; max-height: 85vh; border-radius: var(--radius-md); object-fit: contain; }
-  .lightbox-close {
-    position: fixed;
-    top: 16px; right: 20px;
-    font-size: 28px;
-    color: #fff;
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-weight: 300;
-    line-height: 1;
-  }
+    .feature-page { display: none; }
+    .feature-page.active { display: block; }
 
-  .credit-box {
-    background: var(--bg-primary);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin-top: 0.25rem;
-  }
-  .credit-box-header {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .credit-badge { width: 8px; height: 8px; border-radius: 50%; background: var(--se-green); display: inline-block; flex-shrink: 0; }
-  .credit-input-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .credit-input {
-    width: 100px;
-    padding: 8px 10px;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: center;
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.15s;
-    font-family: inherit;
-  }
-  .credit-input:focus { border-color: var(--se-green); }
-  .credit-input[readonly] { background: var(--bg-secondary); cursor: default; }
-  .credit-hint { font-size: 12px; color: var(--text-secondary); }
-  .credit-error { font-size: 12px; color: #e24b4a; font-weight: 500; margin-top: 8px; }
+    .card {
+      background: var(--se-white); border-radius: 12px;
+      padding: 24px 28px; margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .card-header h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 28px; font-weight: 700;
+      flex: 1; min-width: 180px;
+    }
+    .jira-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      background: var(--se-dark); color: #fff;
+      border-radius: var(--radius); font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: background .2s;
+    }
+    .jira-btn:hover { background: #333; }
+    .jira-btn svg { width: 14px; height: 14px; }
 
-  /* Summary */
-  .summary-page { display: flex; flex-direction: column; gap: 1rem; max-width: 860px; margin: 0 auto; }
-  .summary-header { display: flex; align-items: center; justify-content: space-between; }
-  .summary-title { font-size: 20px; font-weight: 500; color: var(--text-primary); }
-  .export-btn {
-    padding: 7px 14px;
-    background: var(--se-green);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .export-btn:hover { background: var(--se-green-dark); }
-  .summary-table-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 0.5px solid var(--border); }
-  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .summary-table th {
-    text-align: left;
-    padding: 10px 14px;
-    background: var(--se-navy);
-    color: rgba(255,255,255,0.85);
-    font-weight: 500;
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  .summary-table td {
-    padding: 10px 14px;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--text-primary);
-    vertical-align: middle;
-  }
-  .summary-table tr:last-child td { border-bottom: none; }
-  .summary-table tbody tr:hover td { background: var(--bg-secondary); }
-  .credit-pill {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 500;
-    background: #eaf3de;
-    color: #27500a;
-  }
-  .credit-pill.zero { background: var(--bg-tertiary); color: var(--text-secondary); }
+    /* Carousel */
+    .carousel-outer { overflow: hidden; border-radius: 8px; background: #111; cursor: zoom-in; }
+    .carousel-track { display: flex; transition: transform .4s ease; }
+    .carousel-slide {
+      flex-shrink: 0; width: 100%;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 260px; max-height: 440px;
+    }
+    .carousel-slide img {
+      max-width: 100%; max-height: 440px;
+      object-fit: contain; display: block;
+    }
+    .carousel-wrap { position: relative; }
+    .c-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,.9); border: none; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      transition: background .15s;
+    }
+    .c-btn:hover { background: #fff; }
+    .c-btn svg { width: 16px; height: 16px; }
+    .c-btn.prev { left: 10px; } .c-btn.next { right: 10px; }
+    .c-dots { display: flex; justify-content: center; gap: 7px; margin-top: 11px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--se-border); border: none; cursor: pointer; padding: 0; transition: background .2s, transform .2s; }
+    .dot.active { background: var(--se-green); transform: scale(1.35); }
+    .c-counter { text-align: center; font-size: 12px; color: var(--se-mid); margin-top: 6px; }
 
-  /* Sticky footer */
-  .credit-footer {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--se-navy);
-    padding: 10px 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    border-top: 2px solid var(--se-green);
-    z-index: 20;
-    flex-wrap: wrap;
-  }
-  .footer-credits { display: flex; gap: 1.5rem; align-items: center; }
-  .footer-stat { display: flex; flex-direction: column; gap: 1px; }
-  .footer-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); }
-  .footer-stat-val { font-size: 15px; font-weight: 500; color: #fff; }
-  .footer-stat-val.green { color: var(--se-green); }
-  .footer-stat-val.warn { color: #fac775; }
-  .footer-stat-val.red { color: #f09595; }
-  .footer-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .footer-voter-label { font-size: 12px; color: rgba(255,255,255,0.6); }
-  .submit-btn {
-    padding: 6px 14px;
-    background: var(--se-green);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .submit-btn:hover { background: var(--se-green-dark); }
-  .submitted-badge {
-    padding: 5px 12px;
-    background: rgba(61,205,88,0.15);
-    color: var(--se-green);
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid rgba(61,205,88,0.3);
-  }
-  .change-btn {
-    padding: 5px 10px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.6);
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .change-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+    /* Desc */
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; margin-bottom: 12px;
+    }
+    .desc-text { color: #444; font-size: 15px; line-height: 1.72; }
 
-  /* Voter login */
-  .voter-login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 1rem;
-    gap: 1rem;
-    text-align: center;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  .voter-login-logo { width: 56px; height: 56px; background: var(--se-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #fff; }
-  .voter-login h2 { font-size: 20px; font-weight: 500; color: var(--text-primary); }
-  .voter-login p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
-  .voter-name-input {
-    width: 100%;
-    max-width: 280px;
-    padding: 10px 14px;
-    font-size: 15px;
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    outline: none;
-    text-align: center;
-    transition: border-color 0.15s;
-    font-family: inherit;
-  }
-  .voter-name-input:focus { border-color: var(--se-green); }
-  .voter-start-btn {
-    padding: 10px 28px;
-    background: var(--se-green);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-    font-family: inherit;
-  }
-  .voter-start-btn:hover { background: var(--se-green-dark); }
+    /* Credit input */
+    .credit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .c-input-wrap { position: relative; display: flex; align-items: center; }
+    .c-input-wrap .currency { position: absolute; left: 13px; font-weight: 800; font-size: 18px; color: var(--se-green); pointer-events: none; }
+    .c-input-wrap input[type="number"] {
+      width: 130px; padding: 11px 12px 11px 32px;
+      border: 2px solid var(--se-border); border-radius: var(--radius);
+      font-family: inherit; font-size: 22px; font-weight: 800;
+      color: var(--se-dark); outline: none;
+      -moz-appearance: textfield;
+      transition: border-color .2s;
+    }
+    .c-input-wrap input::-webkit-outer-spin-button,
+    .c-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .c-input-wrap input:focus { border-color: var(--se-green); }
+    .c-input-wrap input:disabled { background: #f8f8f8; color: #bbb; cursor: not-allowed; }
+    .c-input-wrap input.over { border-color: var(--danger); color: var(--danger); }
+    .c-pct { font-size: 14px; color: var(--se-mid); }
+    .c-warn { font-size: 13px; color: var(--danger); font-weight: 600; display: none; margin-top: 8px; width: 100%; }
+    .c-warn.show { display: block; }
 
-  .remove-feature-btn {
-    margin-top: 0.5rem;
-    padding: 6px 14px;
-    background: transparent;
-    border: 1px solid #e24b4a;
-    color: #e24b4a;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    align-self: flex-start;
-    font-family: inherit;
-    transition: background 0.15s, color 0.15s;
-  }
-  .remove-feature-btn:hover { background: #e24b4a; color: #fff; }
+    /* Submit */
+    .submit-wrap { text-align: center; margin: 28px 0 4px; }
+    .btn-submit {
+      padding: 14px 40px;
+      background: var(--se-green); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background .15s, transform .1s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-submit:hover { background: var(--se-green-d); }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+    .submitted-banner {
+      display: none; background: var(--se-green-l);
+      border: 1.5px solid var(--se-green); border-radius: 10px;
+      padding: 16px 22px; text-align: center;
+      color: var(--se-green-d); font-weight: 700; font-size: 15px;
+      margin-bottom: 14px;
+    }
+    .submitted-banner.show { display: block; }
 
-  .hidden { display: none !important; }
-</style>
+    /* ── CREDIT BAR ── */
+    #credit-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      height: var(--credit-bar);
+      background: var(--se-dark);
+      align-items: center; gap: 18px; padding: 0 20px;
+      box-shadow: 0 -2px 16px rgba(0,0,0,.2);
+    }
+    #credit-bar.visible { display: flex; }
+    .cb-item { text-align: center; flex-shrink: 0; }
+    .cb-item .val { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: #fff; line-height: 1; }
+    .cb-item .val.green { color: var(--se-green); }
+    .cb-item .val.red { color: var(--danger); }
+    .cb-item .lbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+    .cb-sep { width: 1px; height: 30px; background: #333; flex-shrink: 0; }
+    .cb-track { flex: 1; height: 10px; background: #333; border-radius: 5px; overflow: hidden; }
+    .cb-fill { height: 100%; border-radius: 5px; background: var(--se-green); transition: width .3s, background .3s; }
+    .cb-fill.over { background: var(--danger); }
+    .cb-unit { font-size: 12px; color: #666; flex-shrink: 0; }
+
+    /* ── MODAL ── */
+    #modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.5);
+      align-items: center; justify-content: center;
+    }
+    #modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--se-white); border-radius: 16px;
+      padding: 36px 28px; max-width: 460px; width: 90%;
+      box-shadow: var(--shadow-lg); text-align: center;
+    }
+    .modal-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--se-green-l);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .modal-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .modal-box p { color: var(--se-mid); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+    .alloc-list {
+      text-align: left; background: var(--se-grey);
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 22px;
+      max-height: 220px; overflow-y: auto;
+    }
+    .alloc-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; padding: 5px 0;
+      border-bottom: 1px solid var(--se-border);
+    }
+    .alloc-row:last-child { border-bottom: none; }
+    .alloc-row .amt { font-weight: 800; color: var(--se-green-d); }
+    .alloc-row.total { font-weight: 700; margin-top: 4px; }
+    .modal-btns { display: flex; gap: 12px; }
+    .btn-ghost {
+      flex: 1; padding: 12px;
+      background: transparent; border: 2px solid var(--se-border);
+      border-radius: var(--radius); font-family: inherit;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      color: var(--se-mid); transition: border-color .2s, color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--se-dark); color: var(--se-dark); }
+    .btn-confirm {
+      flex: 1; padding: 12px;
+      background: var(--se-green); border: none;
+      border-radius: var(--radius); font-family: inherit;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      color: #fff; transition: background .15s;
+    }
+    .btn-confirm:hover { background: var(--se-green-d); }
+
+    /* ── LIGHTBOX ── */
+    #lightbox {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.93);
+      align-items: center; justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: 6px; }
+    #lb-close {
+      position: absolute; top: 18px; right: 22px;
+      background: none; border: none; color: #fff;
+      font-size: 30px; cursor: pointer; opacity: .8; line-height: 1;
+    }
+    #lb-close:hover { opacity: 1; }
+    .lb-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 22px; transition: background .2s;
+    }
+    .lb-nav:hover { background: rgba(255,255,255,.22); }
+    #lb-prev { left: 18px; } #lb-next { right: 18px; }
+
+    /* ── LOADING / ERROR ── */
+    #loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 35vh; }
+    .spinner { width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--se-border); border-top-color: var(--se-green); animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { color: var(--se-mid); font-size: 14px; }
+    #error-box { display: none; background: #fff3f3; border: 1.5px solid var(--danger); border-radius: 10px; padding: 18px 22px; color: var(--danger); font-size: 14px; margin-bottom: 20px; }
+
+    @media (max-width: 600px) {
+      #screen-features { padding: 0 12px; }
+      .card { padding: 16px; }
+      .card-header h2 { font-size: 22px; }
+      #credit-bar { gap: 10px; padding: 0 12px; }
+      .cb-item .val { font-size: 18px; }
+      .login-card { padding: 32px 22px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="app" id="app">
-  <div class="nav">
-    <div class="nav-logo">
-      <div class="se-logo">SE</div>
-      <span class="nav-title">Feature Poker</span>
-    </div>
-    <div class="nav-mode-btns">
-      <button class="mode-btn active" id="btn-admin" onclick="switchMode('admin')">Admin</button>
-      <button class="mode-btn" id="btn-voter" onclick="switchMode('voter')">Voter</button>
+<!-- TOP BAR -->
+<nav id="topbar">
+  <div class="logo-area">
+    <svg viewBox="0 0 40 40" fill="none">
+      <rect width="40" height="40" rx="7" fill="#3DCD58"/>
+      <path d="M8 22h7l3-8 4 14 3-8 3 5h4" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="brand">Schneider Electric</span>
+    <div class="sep"></div>
+    <span class="appname">Feature Poker</span>
+  </div>
+  <div id="feature-nav"></div>
+  <div id="user-chip">
+    <div class="avatar" id="user-avatar">?</div>
+    <div class="uname" id="user-name-chip">–</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- LOGIN SCREEN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-card">
+      <div class="login-icon">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+          <path d="M6 22h8l3-8 4 14 3-8 3 5h7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>Feature Poker</h1>
+      <p class="subtitle">Prioritize features by distributing your budget across all proposals</p>
+      <div class="credit-pill">💰 100 USD Credits</div>
+      <div class="field">
+        <input type="text" id="voter-name" placeholder="Enter your full name…" maxlength="50" autocomplete="off"/>
+      </div>
+      <button class="btn-primary" id="btn-start" disabled>Start Voting →</button>
+      <p class="login-note">No password required · Submit your allocation once you're done</p>
     </div>
   </div>
 
-  <div class="tabs-bar" id="tabs-bar"></div>
-  <div class="content" id="main-content"></div>
-
-  <div class="credit-footer" id="credit-footer">
-    <div class="footer-credits">
-      <div class="footer-stat">
-        <span class="footer-stat-label">Total Credits</span>
-        <span class="footer-stat-val">100 USD</span>
-      </div>
-      <div class="footer-stat">
-        <span class="footer-stat-label">Remaining Credits</span>
-        <span class="footer-stat-val green" id="footer-remaining">100 USD</span>
-      </div>
+  <!-- FEATURES SCREEN -->
+  <div id="screen-features" class="screen">
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Loading features…</p>
     </div>
-    <div class="footer-right" id="footer-right-content"></div>
+    <div id="error-box"></div>
+    <div id="features-container"></div>
+    <div id="submit-wrap" class="submit-wrap" style="display:none">
+      <div class="submitted-banner" id="submitted-banner">
+        ✅ Your allocation has been submitted! Thank you for participating.
+      </div>
+      <button class="btn-submit" id="btn-submit">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Submit My Allocation
+      </button>
+    </div>
   </div>
 
-  <div class="lightbox-overlay hidden" id="lightbox" onclick="closeLightbox(event)">
-    <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
-    <img class="lightbox-img" id="lightbox-img" src="" alt="Mockup">
+</div>
+
+<!-- CREDIT BAR -->
+<div id="credit-bar">
+  <div class="cb-item">
+    <div class="val green">100</div>
+    <div class="lbl">Total</div>
+  </div>
+  <div class="cb-sep"></div>
+  <div class="cb-item">
+    <div class="val" id="cb-spent">0</div>
+    <div class="lbl">Spent</div>
+  </div>
+  <div class="cb-sep"></div>
+  <div class="cb-item">
+    <div class="val green" id="cb-remaining">100</div>
+    <div class="lbl">Remaining</div>
+  </div>
+  <div class="cb-track">
+    <div class="cb-fill" id="cb-fill" style="width:0%"></div>
+  </div>
+  <div class="cb-unit">USD</div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3DCD58" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h3>Confirm Your Submission</h3>
+    <p>Please review your allocation below. Once confirmed, your vote is locked and cannot be changed.</p>
+    <div class="alloc-list" id="modal-list"></div>
+    <div class="modal-btns">
+      <button class="btn-ghost" id="modal-cancel">← Go Back</button>
+      <button class="btn-confirm" id="modal-confirm">✓ Confirm Vote</button>
+    </div>
   </div>
 </div>
 
-<input type="file" id="file-input" accept="image/*" multiple style="display:none">
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button id="lb-close">✕</button>
+  <button class="lb-nav" id="lb-prev">&#8249;</button>
+  <img id="lb-img" src="" alt="Feature image"/>
+  <button class="lb-nav" id="lb-next">&#8250;</button>
+</div>
 
 <script>
+/* ══════════════════════════════════════════
+   CONFIGURATION
+   Update CSV_URL each sprint to point to your
+   raw GitHub CSV file, e.g.:
+   "https://raw.githubusercontent.com/YOUR_ORG/YOUR_REPO/main/features/sprint12.csv"
+══════════════════════════════════════════ */
+const CSV_URL = "features.csv";
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
 const TOTAL = 100;
-let mode = 'admin';
-let currentPage = 0;
-let features = [
-  { title: 'Feature 1', description: '', images: [] }
-];
-let voters = {};
-let currentVoter = null;
-let pendingUploadPage = null;
-
-function getVoterData(name) {
-  if (!voters[name]) voters[name] = { credits: features.map(() => 0), submitted: false };
-  while (voters[name].credits.length < features.length) voters[name].credits.push(0);
-  return voters[name];
-}
-
-function voterSpent(name) {
-  const d = voters[name];
-  if (!d) return 0;
-  return d.credits.reduce((a, b) => a + Number(b), 0);
-}
-
-function voterRemaining(name) { return TOTAL - voterSpent(name); }
-
-function render() { renderTabs(); renderContent(); renderFooter(); }
-
-function renderTabs() {
-  const bar = document.getElementById('tabs-bar');
-  bar.innerHTML = '';
-  features.forEach((f, i) => {
-    const tab = document.createElement('div');
-    tab.className = 'tab' + (currentPage === i ? ' active' : '');
-    tab.textContent = f.title || ('Feature ' + (i + 1));
-    tab.onclick = () => { currentPage = i; render(); };
-    bar.appendChild(tab);
-  });
-  const summaryTab = document.createElement('div');
-  summaryTab.className = 'tab' + (currentPage === 'summary' ? ' active' : '');
-  summaryTab.textContent = 'Summary';
-  summaryTab.onclick = () => { currentPage = 'summary'; render(); };
-  bar.appendChild(summaryTab);
-  if (mode === 'admin') {
-    const addTab = document.createElement('div');
-    addTab.className = 'tab-add';
-    addTab.title = 'Add feature';
-    addTab.textContent = '+';
-    addTab.onclick = addFeature;
-    bar.appendChild(addTab);
-  }
-}
-
-function renderContent() {
-  const content = document.getElementById('main-content');
-  if (currentPage === 'summary') { content.innerHTML = renderSummary(); return; }
-  if (mode === 'voter' && !currentVoter) { content.innerHTML = renderVoterLogin(); return; }
-
-  const f = features[currentPage];
-  const isAdmin = mode === 'admin';
-  const vd = currentVoter ? getVoterData(currentVoter) : null;
-  const creditVal = vd ? vd.credits[currentPage] : 0;
-  const submitted = vd ? vd.submitted : false;
-  const maxCredit = vd ? (voterRemaining(currentVoter) + Number(creditVal)) : 100;
-
-  let imagesHtml = '<div class="image-grid">';
-  f.images.forEach((src, idx) => {
-    if (isAdmin) {
-      imagesHtml += `<div class="img-wrapper">
-        <img class="img-thumb" src="${src}" onclick="openLightbox('${src}')" alt="mockup">
-        <button class="img-remove" onclick="removeImage(${currentPage},${idx})">&#x2715;</button>
-      </div>`;
-    } else {
-      imagesHtml += `<img class="img-thumb" src="${src}" onclick="openLightbox('${src}')" alt="mockup">`;
-    }
-  });
-  if (isAdmin) {
-    imagesHtml += `<div class="upload-btn" onclick="triggerUpload(${currentPage})">
-      <span class="upload-icon">&#x2B06;</span><span>Upload</span>
-    </div>`;
-  }
-  imagesHtml += '</div>';
-
-  let creditSection = '';
-  if (mode === 'voter' && currentVoter) {
-    creditSection = `
-      <div class="credit-box">
-        <div class="credit-box-header"><span class="credit-badge"></span> How much do you want to spend for the value of this feature?</div>
-        <div class="credit-input-row">
-          <input type="number" class="credit-input" id="credit-inp" min="0" max="${maxCredit}" step="1"
-            value="${creditVal}" ${submitted ? 'readonly' : ''} oninput="onCreditInput(this)">
-          <span class="credit-hint" id="credit-hint">Max available: ${maxCredit} USD</span>
-        </div>
-        ${submitted ? '<div class="credit-error">Votes submitted. No further changes.</div>' : ''}
-      </div>`;
-  }
-
-  content.innerHTML = `
-    <div class="feature-page">
-      <div class="section-card">
-        <div class="field-label">Feature Title</div>
-        <input class="feature-title-input" type="text" placeholder="Enter feature title…"
-          value="${escHtml(f.title)}" ${isAdmin ? '' : 'readonly'} oninput="updateTitle(this.value)">
-      </div>
-      <div class="section-card">
-        <div class="field-label">Feature Mockups</div>
-        ${imagesHtml}
-      </div>
-      <div class="section-card">
-        <div class="field-label">Feature Description</div>
-        <textarea class="desc-area" placeholder="Describe this feature…" ${isAdmin ? '' : 'readonly'}
-          oninput="updateDesc(this.value)">${escHtml(f.description)}</textarea>
-      </div>
-      ${creditSection}
-      ${isAdmin && features.length > 1 ? `<button class="remove-feature-btn" onclick="removeFeature()">Remove this feature</button>` : ''}
-    </div>`;
-}
-
-function renderVoterLogin() {
-  return `<div class="voter-login">
-    <div class="voter-login-logo">SE</div>
-    <h2>Welcome to Feature Poker</h2>
-    <p>Enter your name to start voting. You have 100 USD in credits to distribute across all features.</p>
-    <input type="text" class="voter-name-input" id="voter-name-inp" placeholder="Your name…" onkeydown="if(event.key==='Enter')startVoting()">
-    <button class="voter-start-btn" onclick="startVoting()">Start Voting</button>
-  </div>`;
-}
-
-function renderSummary() {
-  const voterNames = Object.keys(voters);
-  if (voterNames.length === 0) {
-    return `<div class="summary-page">
-      <div class="summary-header"><div class="summary-title">Voting Summary</div></div>
-      <p style="font-size:14px;color:var(--text-secondary);margin-top:1rem;">No votes yet. Switch to Voter mode to start voting.</p>
-    </div>`;
-  }
-  let rows = features.map((f, i) => `
-    <tr>
-      <td style="font-weight:500;">${escHtml(f.title || 'Feature ' + (i+1))}</td>
-      ${voterNames.map(v => {
-        const c = voters[v].credits[i] || 0;
-        return `<td style="text-align:center;"><span class="credit-pill${c==0?' zero':''}">${c} USD</span></td>`;
-      }).join('')}
-    </tr>`).join('');
-
-  let totalsRow = `<tr style="background:var(--bg-secondary);">
-    <td style="font-weight:500;font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;">Total spent</td>
-    ${voterNames.map(v => `<td style="text-align:center;font-weight:500;color:var(--se-green-dark);">${voterSpent(v)} / 100 USD</td>`).join('')}
-  </tr>`;
-
-  return `<div class="summary-page">
-    <div class="summary-header">
-      <div class="summary-title">Voting Summary</div>
-      <button class="export-btn" onclick="exportCSV()">&#x2B07; Export CSV</button>
-    </div>
-    <div class="summary-table-wrap">
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th style="min-width:160px;">Feature</th>
-            ${voterNames.map(v => `<th style="text-align:center;min-width:100px;">${escHtml(v)}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>${rows}${totalsRow}</tbody>
-      </table>
-    </div>
-  </div>`;
-}
-
-function renderFooter() {
-  const footerRight = document.getElementById('footer-right-content');
-  const footerRemaining = document.getElementById('footer-remaining');
-  if (mode === 'voter' && currentVoter) {
-    const rem = voterRemaining(currentVoter);
-    const vd = getVoterData(currentVoter);
-    footerRemaining.textContent = rem + ' USD';
-    footerRemaining.className = 'footer-stat-val' + (rem <= 0 ? ' red' : rem < 30 ? ' warn' : ' green');
-    footerRight.innerHTML = `
-      <span class="footer-voter-label">Voting as:</span>
-      <span style="font-size:13px;font-weight:500;color:#fff;">${escHtml(currentVoter)}</span>
-      ${vd.submitted
-        ? '<span class="submitted-badge">Submitted</span>'
-        : `<button class="submit-btn" onclick="submitVotes()">Submit Votes</button>`}
-      <button class="change-btn" onclick="logoutVoter()">Change</button>`;
-  } else if (mode === 'voter') {
-    footerRemaining.textContent = '100 USD';
-    footerRemaining.className = 'footer-stat-val green';
-    footerRight.innerHTML = '';
-  } else {
-    footerRemaining.textContent = '-';
-    footerRemaining.className = 'footer-stat-val';
-    const count = Object.keys(voters).length;
-    footerRight.innerHTML = count > 0
-      ? `<span class="footer-voter-label">Voters: ${count}</span>`
-      : `<span class="footer-voter-label">Admin mode — no votes tracked</span>`;
-  }
-}
-
-function switchMode(m) {
-  mode = m;
-  document.getElementById('btn-admin').className = 'mode-btn' + (m === 'admin' ? ' active' : '');
-  document.getElementById('btn-voter').className = 'mode-btn' + (m === 'voter' ? ' active' : '');
-  if (currentPage === 'summary') currentPage = 0;
-  render();
-}
-
-function addFeature() {
-  features.push({ title: 'Feature ' + (features.length + 1), description: '', images: [] });
-  Object.keys(voters).forEach(v => voters[v].credits.push(0));
-  currentPage = features.length - 1;
-  render();
-}
-
-function removeFeature() {
-  if (features.length <= 1) return;
-  features.splice(currentPage, 1);
-  Object.keys(voters).forEach(v => voters[v].credits.splice(currentPage, 1));
-  currentPage = Math.max(0, currentPage - 1);
-  render();
-}
-
-function updateTitle(val) { features[currentPage].title = val; renderTabs(); }
-function updateDesc(val) { features[currentPage].description = val; }
-
-function triggerUpload(pageIdx) {
-  pendingUploadPage = pageIdx;
-  const fi = document.getElementById('file-input');
-  fi.value = '';
-  fi.click();
-}
-
-document.getElementById('file-input').onchange = function() {
-  const files = Array.from(this.files);
-  let loaded = 0;
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      features[pendingUploadPage].images.push(e.target.result);
-      if (++loaded === files.length) render();
-    };
-    reader.readAsDataURL(file);
-  });
+let state = {
+  voter: "",
+  features: [],
+  credits: {},
+  submitted: false,
+  activeIdx: 0,
+  lbImages: [],
+  lbIdx: 0,
+  carIdx: {},
 };
 
-function removeImage(pageIdx, imgIdx) { features[pageIdx].images.splice(imgIdx, 1); render(); }
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const sum = obj => Object.values(obj).reduce((a,b) => a+(Number(b)||0), 0);
+const initials = n => n.trim().split(/\s+/).map(w=>w[0]).join("").toUpperCase().slice(0,2);
+const parseImgs = raw => (raw||"").split("|").map(s=>s.trim()).filter(Boolean).slice(0,10);
 
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.remove('hidden');
+/* ══════════════════════════════════════════
+   CSV PARSER
+══════════════════════════════════════════ */
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = splitLine(lines[0]);
+  return lines.slice(1).filter(l=>l.trim()).map(l => {
+    const vals = splitLine(l);
+    const obj = {};
+    headers.forEach((h,i) => obj[h.trim()] = (vals[i]||"").trim());
+    return obj;
+  });
+}
+function splitLine(line) {
+  const r = []; let cur="", inQ=false;
+  for (let i=0; i<line.length; i++) {
+    const c = line[i];
+    if (c==='"') inQ=!inQ;
+    else if (c===',' && !inQ) { r.push(cur); cur=""; }
+    else cur+=c;
+  }
+  r.push(cur); return r;
 }
 
-function closeLightbox(e) {
-  if (!e || e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
-    document.getElementById('lightbox').classList.add('hidden');
+/* ══════════════════════════════════════════
+   LOAD CSV
+══════════════════════════════════════════ */
+async function loadFeatures() {
+  $("loading").style.display = "flex";
+  $("features-container").innerHTML = "";
+  $("error-box").style.display = "none";
+  $("submit-wrap").style.display = "none";
+  try {
+    const r = await fetch(CSV_URL + "?_=" + Date.now());
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const text = await r.text();
+    const rows = parseCSV(text);
+    if (!rows.length) throw new Error("CSV appears to be empty or missing headers.");
+    state.features = rows;
+    state.credits = {};
+    state.carIdx = {};
+    rows.forEach((_,i) => { state.credits[i]=0; state.carIdx[i]=0; });
+    $("loading").style.display = "none";
+    renderNav();
+    renderFeatures();
+    $("submit-wrap").style.display = "block";
+    showFeature(0);
+    updateCreditBar();
+  } catch(e) {
+    $("loading").style.display = "none";
+    $("error-box").style.display = "block";
+    $("error-box").innerHTML = `<strong>⚠️ Could not load features</strong><br>${esc(e.message)}<br><br>
+      Check that <code>CSV_URL</code> in the source points to a valid, publicly accessible CSV file.`;
   }
 }
 
-function startVoting() {
-  const inp = document.getElementById('voter-name-inp');
-  const name = inp ? inp.value.trim() : '';
-  if (!name) { if(inp) inp.focus(); return; }
-  currentVoter = name;
-  getVoterData(name);
-  currentPage = 0;
-  render();
-}
-
-function logoutVoter() { currentVoter = null; currentPage = 0; render(); }
-
-function onCreditInput(inp) {
-  if (!currentVoter) return;
-  const vd = getVoterData(currentVoter);
-  if (vd.submitted) return;
-  let val = parseInt(inp.value) || 0;
-  if (val < 0) val = 0;
-  const maxAvail = TOTAL - voterSpent(currentVoter) + Number(vd.credits[currentPage]);
-  if (val > maxAvail) { val = maxAvail; inp.value = val; }
-  vd.credits[currentPage] = val;
-  const hint = document.getElementById('credit-hint');
-  if (hint) hint.textContent = 'Max available: ' + (TOTAL - voterSpent(currentVoter) + val) + ' USD';
-  renderFooter();
-}
-
-function submitVotes() {
-  if (!currentVoter) return;
-  getVoterData(currentVoter).submitted = true;
-  render();
-}
-
-function exportCSV() {
-  const voterNames = Object.keys(voters);
-  let csv = 'Feature,' + voterNames.map(v => '"' + v.replace(/"/g, '""') + '"').join(',') + '\n';
-  features.forEach((f, i) => {
-    const title = '"' + (f.title || 'Feature ' + (i + 1)).replace(/"/g, '""') + '"';
-    csv += title + ',' + voterNames.map(v => voters[v].credits[i] || 0).join(',') + '\n';
+/* ══════════════════════════════════════════
+   RENDER NAV
+══════════════════════════════════════════ */
+function renderNav() {
+  const nav = $("feature-nav");
+  nav.innerHTML = "";
+  state.features.forEach((f,i) => {
+    const t = document.createElement("div");
+    t.className = "nav-tab" + (i===0?" active":"");
+    t.dataset.i = i;
+    t.innerHTML = `${esc(f.FeatureTitle||"Feature "+(i+1))} <span class="badge empty" id="badge-${i}">$0</span>`;
+    t.addEventListener("click", () => showFeature(i));
+    nav.appendChild(t);
   });
-  csv += '"Total Spent",' + voterNames.map(v => voterSpent(v)).join(',') + '\n';
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'feature-poker-results.csv'; a.click();
-  URL.revokeObjectURL(url);
+}
+function updateBadges() {
+  state.features.forEach((_,i) => {
+    const b = $("badge-"+i); if(!b) return;
+    const v = state.credits[i]||0;
+    b.textContent = "$"+v;
+    b.className = "badge"+(v>0?"":" empty");
+  });
 }
 
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* ══════════════════════════════════════════
+   RENDER FEATURE PAGES
+══════════════════════════════════════════ */
+function renderFeatures() {
+  const container = $("features-container");
+  container.innerHTML = "";
+  state.features.forEach((f,i) => {
+    const imgs = parseImgs(f.FeatureImageURLs);
+    const page = document.createElement("div");
+    page.className = "feature-page";
+    page.id = "fpage-"+i;
+
+    /* build carousel html */
+    let carouselHtml = "";
+    if (imgs.length) {
+      const slides = imgs.map((url,si) => `
+        <div class="carousel-slide" data-fi="${i}" data-si="${si}">
+          <img src="${esc(url)}" alt="Image ${si+1}" loading="lazy"
+            onerror="this.closest('.carousel-slide').style.display='none'"/>
+        </div>`).join("");
+      const navBtns = imgs.length>1 ? `
+        <button class="c-btn prev" data-fi="${i}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="c-btn next" data-fi="${i}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>` : "";
+      const dots = imgs.length>1 ? `
+        <div class="c-dots" id="dots-${i}">
+          ${imgs.map((_,si)=>`<button class="dot${si===0?" active":""}" data-fi="${i}" data-si="${si}"></button>`).join("")}
+        </div>
+        <div class="c-counter" id="counter-${i}">1 / ${imgs.length}</div>` : "";
+      carouselHtml = `
+        <div class="card" style="padding:16px">
+          <div class="carousel-wrap">
+            <div class="carousel-outer">
+              <div class="carousel-track" id="track-${i}">${slides}</div>
+              ${navBtns}
+            </div>
+            ${dots}
+          </div>
+        </div>`;
+    }
+
+    page.innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <h2>${esc(f.FeatureTitle||"Untitled Feature")}</h2>
+          ${f.FeatureLink ? `<a class="jira-btn" href="${esc(f.FeatureLink)}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open in JIRA</a>` : ""}
+        </div>
+      </div>
+      ${carouselHtml}
+      ${f.FeatureDescription ? `
+        <div class="card">
+          <div class="section-title">Description</div>
+          <p class="desc-text">${esc(f.FeatureDescription).replace(/\n/g,"<br>")}</p>
+        </div>` : ""}
+      <div class="card">
+        <div class="section-title">💰 Your Credit Allocation</div>
+        <p style="font-size:13px;color:var(--se-mid);margin-bottom:16px">
+          How many of your 100 USD credits do you place on this feature?
+        </p>
+        <div class="credit-row">
+          <div class="c-input-wrap">
+            <span class="currency">$</span>
+            <input type="number" class="credit-input" id="cinput-${i}" data-fi="${i}"
+              min="0" max="100" step="1" value="0"/>
+          </div>
+          <span class="c-pct" id="cpct-${i}">0% of total</span>
+        </div>
+        <div class="c-warn" id="cwarn-${i}">⚠️ Not enough remaining credits!</div>
+      </div>`;
+
+    container.appendChild(page);
+
+    /* carousel click → lightbox */
+    page.querySelectorAll(".carousel-slide").forEach(slide => {
+      slide.addEventListener("click", () => {
+        openLightbox(parseImgs(state.features[+slide.dataset.fi].FeatureImageURLs), +slide.dataset.si);
+      });
+    });
+    /* carousel prev/next */
+    page.querySelectorAll(".c-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        carMove(+btn.dataset.fi, btn.classList.contains("next") ? 1 : -1);
+      });
+    });
+    /* dots */
+    page.querySelectorAll(".dot").forEach(d => {
+      d.addEventListener("click", () => carGoTo(+d.dataset.fi, +d.dataset.si));
+    });
+    /* credit input */
+    const inp = page.querySelector(".credit-input");
+    inp.addEventListener("input", () => onCredit(i));
+  });
 }
 
-render();
+/* ══════════════════════════════════════════
+   CAROUSEL
+══════════════════════════════════════════ */
+function carMove(fi, dir) {
+  const len = parseImgs(state.features[fi].FeatureImageURLs).length;
+  let idx = (state.carIdx[fi] + dir + len) % len;
+  carGoTo(fi, idx);
+}
+function carGoTo(fi, idx) {
+  state.carIdx[fi] = idx;
+  const track = $("track-"+fi);
+  if (track) track.style.transform = `translateX(-${idx*100}%)`;
+  document.querySelectorAll(`#dots-${fi} .dot`).forEach((d,i) => d.classList.toggle("active", i===idx));
+  const ctr = $("counter-"+fi);
+  if (ctr) ctr.textContent = (idx+1)+" / "+parseImgs(state.features[fi].FeatureImageURLs).length;
+}
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════ */
+function openLightbox(imgs, idx) {
+  state.lbImages = imgs; state.lbIdx = idx;
+  refreshLb();
+  $("lightbox").classList.add("open");
+}
+function refreshLb() {
+  $("lb-img").src = state.lbImages[state.lbIdx]||"";
+  const multi = state.lbImages.length > 1;
+  $("lb-prev").style.display = multi ? "flex" : "none";
+  $("lb-next").style.display = multi ? "flex" : "none";
+}
+$("lb-close").addEventListener("click", () => $("lightbox").classList.remove("open"));
+$("lightbox").addEventListener("click", e => { if(e.target===$("lightbox")) $("lightbox").classList.remove("open"); });
+$("lb-prev").addEventListener("click", () => { state.lbIdx=(state.lbIdx-1+state.lbImages.length)%state.lbImages.length; refreshLb(); });
+$("lb-next").addEventListener("click", () => { state.lbIdx=(state.lbIdx+1)%state.lbImages.length; refreshLb(); });
+document.addEventListener("keydown", e => {
+  if (!$("lightbox").classList.contains("open")) return;
+  if (e.key==="Escape") $("lightbox").classList.remove("open");
+  if (e.key==="ArrowLeft") { state.lbIdx=(state.lbIdx-1+state.lbImages.length)%state.lbImages.length; refreshLb(); }
+  if (e.key==="ArrowRight") { state.lbIdx=(state.lbIdx+1)%state.lbImages.length; refreshLb(); }
+});
+
+/* ══════════════════════════════════════════
+   CREDIT LOGIC
+══════════════════════════════════════════ */
+function onCredit(fi) {
+  const inp = $("cinput-"+fi);
+  let val = parseInt(inp.value, 10);
+  if (isNaN(val)||val<0) val=0;
+  if (val>100) val=100;
+
+  const otherSpent = Object.entries(state.credits)
+    .filter(([k])=>+k!==fi)
+    .reduce((a,[,v])=>a+(Number(v)||0), 0);
+
+  if (otherSpent+val > TOTAL) {
+    val = Math.max(0, TOTAL-otherSpent);
+    inp.classList.add("over");
+    $("cwarn-"+fi).classList.add("show");
+    setTimeout(()=>{ inp.classList.remove("over"); $("cwarn-"+fi).classList.remove("show"); }, 1600);
+  } else {
+    inp.classList.remove("over");
+    $("cwarn-"+fi).classList.remove("show");
+  }
+  inp.value = val;
+  state.credits[fi] = val;
+  $("cpct-"+fi).textContent = val+"% of total";
+  updateCreditBar();
+  updateBadges();
+}
+
+function updateCreditBar() {
+  const spent = sum(state.credits);
+  const rem = TOTAL - spent;
+  $("cb-spent").textContent = spent;
+  $("cb-remaining").textContent = rem;
+  $("cb-remaining").className = "val"+(rem<0?" red":" green");
+  const fill = $("cb-fill");
+  fill.style.width = Math.min((spent/TOTAL)*100,100)+"%";
+  fill.classList.toggle("over", spent>TOTAL);
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+function showFeature(idx) {
+  state.activeIdx = idx;
+  document.querySelectorAll(".feature-page").forEach((p,i) => p.classList.toggle("active", i===idx));
+  document.querySelectorAll(".nav-tab").forEach((t,i) => t.classList.toggle("active", i===idx));
+  const tab = document.querySelector(".nav-tab.active");
+  if (tab) tab.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});
+}
+
+/* ══════════════════════════════════════════
+   SUBMIT
+══════════════════════════════════════════ */
+$("btn-submit").addEventListener("click", () => { if (!state.submitted) openModal(); });
+
+function openModal() {
+  const rows = state.features.map((f,i) => {
+    const v = state.credits[i]||0;
+    return `<div class="alloc-row"><span>${esc(f.FeatureTitle||"Feature "+(i+1))}</span><span class="amt">$${v}</span></div>`;
+  }).join("");
+  const spent = sum(state.credits);
+  $("modal-list").innerHTML = rows + `<div class="alloc-row total"><span>Total Spent</span><span class="amt">$${spent} / $${TOTAL}</span></div>`;
+  $("modal-overlay").classList.add("open");
+}
+
+$("modal-cancel").addEventListener("click", () => $("modal-overlay").classList.remove("open"));
+$("modal-confirm").addEventListener("click", () => {
+  $("modal-overlay").classList.remove("open");
+  doSubmit();
+});
+
+function doSubmit() {
+  state.submitted = true;
+  document.querySelectorAll(".credit-input").forEach(inp => inp.disabled=true);
+  $("submitted-banner").classList.add("show");
+  const btn = $("btn-submit");
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Submitted`;
+
+  /* ── Google Sheets hook ──────────────────────────────────────
+     Replace SHEETS_ENDPOINT with your Apps Script Web App URL.
+     Data format matches: FeatureTitle, FeatureLink, Timestamp,
+     UserName, CreditsAllocated — one row per feature.
+  ──────────────────────────────────────────────────────────── */
+  const SHEETS_ENDPOINT = ""; // TODO: add your Google Apps Script URL here
+  const timestamp = new Date().toISOString();
+  const payload = state.features.map((f,i) => ({
+    FeatureTitle: f.FeatureTitle || "",
+    FeatureLink:  f.FeatureLink  || "",
+    Timestamp:    timestamp,
+    UserName:     state.voter,
+    CreditsAllocated: state.credits[i]||0,
+  }));
+
+  console.log("Feature Poker submission:", payload);
+
+  if (SHEETS_ENDPOINT) {
+    fetch(SHEETS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ rows: payload }),
+    }).catch(err => console.warn("Sheets sync failed:", err));
+  }
+}
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+const nameEl = $("voter-name");
+const startEl = $("btn-start");
+nameEl.addEventListener("input", () => { startEl.disabled = nameEl.value.trim().length < 2; });
+nameEl.addEventListener("keydown", e => { if (e.key==="Enter"&&!startEl.disabled) startEl.click(); });
+startEl.addEventListener("click", () => {
+  const name = nameEl.value.trim(); if (!name) return;
+  state.voter = name;
+  $("user-avatar").textContent = initials(name);
+  $("user-name-chip").textContent = name;
+  $("user-chip").style.display = "flex";
+  $("screen-login").classList.remove("active");
+  $("screen-features").classList.add("active");
+  $("credit-bar").classList.add("visible");
+  loadFeatures();
+});
 </script>
 </body>
 </html>
